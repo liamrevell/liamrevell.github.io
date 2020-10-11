@@ -19,4 +19,4 @@ iframe {
 }
 ```
 
-<iframe src="https://phytools.shinyapps.io/state-deaths/"></iframe>
+<iframe src="https://phytools.shinyapps.io/excess-mortality-explorer/"></iframe>
