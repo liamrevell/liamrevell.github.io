@@ -1,5 +1,5 @@
 ---
-title: "Provisional death counts by state (all causes)"
+title: "Excess Mortality Explorer"
 output: html_document
 ---
 
