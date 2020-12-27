@@ -1,0 +1,80 @@
+---
+title: "U.S. COVID-19 Explorer Methodology"
+output: html_document
+---
+
+[&larr; back to to covid19-explorer.org](http://covid19-explorer.org/)
+
+This document contains a detailed methodology for the R package 
+[*covid19.Explorer*](https://github.com/liamrevell/covid19.Explorer/) and *shiny* based website 
+[covid19-Explorer.org](http://covid19-Explorer.org).
+
+In this package & web application we estimate total infections (from deaths & confirmed cases), graph the distribution
+of infections over time among states, visualize COVID-19 deaths by age & sex, as well as compared to deaths from all causes,
+and analyze excess mortality through time as a function of of age & state or jurisdiction.
+
+Virtually all data come from the United States [Centers for Disease Control and Prevention](https://www.cdc.gov/) 
+[National Center for Health Statistics](https://www.cdc.gov/nchs/index.htm) or the U.S. [Census Bureau](https://www.census.gov/).
+
+## Estimating infections
+
+Since the beginning of this pandemic, it's been [widely understood](https://doi.org/10.1038/s41467-020-18272-4) that
+confirmed COVID-19 cases underestimate the true number of infections, at some times by a [very large 
+margin](https://www.cdc.gov/library/covid19/092220_covidupdate.html).
+
+This is likely due to multiple factors. One is limited testing capacity at the start of the epidemic. A second is the fact
+that testing is voluntary, and many cases of SARS-CoV-2 infection present asymptotically or with mild symptoms.
+
+As such, we consider confirmed COVID-19 *deaths* to be a much more reliable indicator of disease burden than confirmed
+cases; however, deaths are a *lagging indicator* of infections.
+
+As such, we chose to use a model in which the number of new infections on day *i* was estimated by taking the number of 
+observed COVID-19 deaths on day *i* + *k* and then dividing this quantity by the 
+[infection fatality ratio](https://en.wikipedia.org/wiki/Case_fatality_rate#Infection_fatality_rate) (IFR). (In other words,
+given 50 COVID-19 deaths on day *i* + *k*, and an IFR of 0.5%, we would predict 1,000 new SARS-CoV-2 infections on day *i*.)
+
+Both *k*, the average lag time from infection to death (in cases of SARS-CoV-2 infection that lead to death) and IFR are 
+specified by the user. 
+
+A reasonable lag time between infection & death is approximately three weeks. For example, during a large outbreak in 
+[Melbourne, Australia](https://www.worldometers.info/coronavirus/country/australia/) the time difference between the peak 
+recorded cases and peak confirmed COVID-19 deaths was ~17 days. (Infected persons normally test negative for the first few days 
+following infection, so this more or less corresponds with a lag-time of three weeks.)
+
+Likewise, IFR values ranging from about 0.3% to >1.0% have been reported over the course of the pandemic. For instance, a study 
+based on an early, super-spreader event in Germany estimated an IFR (corrected to the demographic distribution of the general 
+population) of [0.36%](https://doi.org/10.1038/s41467-020-19509-y). Other studies have reported higher estimated IFR. For example, 
+an [Italian study](https://doi.org/10.1101/2020.04.18.20070912) estimated an overall infection fatality rate of 1.31%. In 
+general, it's reasonable to suppose that IFR has fallen through time as COVID-19 treatments have improved. Likewise, even within
+the U.S. IFR is unlikely to be the same at a given date in different jurisdictions, due to differences in demographic structure
+between areas. We think it is reasonable to suppose an IFR no greater than 1.0% and declining from the start of the pandemic
+towards the present, with a current IFR of around 0.3%. We permit the user to specify a time-varying IFR by fixing the IFR at 
+each quarter and then interpolating daily IFR between each quarter using local regression smoothing (LOESS).
+
+Although this model is very simple, reporting can vary through time including regularly over the course of the week. To take
+these reporting artifacts into account we used both [moving averaging](https://en.wikipedia.org/wiki/Moving_average) and 
+[local regression (LOESS)](https://en.wikipedia.org/wiki/Local_regression) smoothing. Both the window for the moving average
+and the LOESS smoothing paramater are controlled by the user.
+
+The approach of using *only* confirmed COVID-19 deaths - though robust - does not permit us to estimate the true number of
+infections between now - *k* and the present day. For this, we assumed a 
+[sigmoidal](https://en.wikipedia.org/wiki/Sigmoid_function) relationship between time and the ratio of confirmed cases over 
+the true number of infections. Since the true number of new infections cannot exceed the number of confirmed cases, this
+ratio must have a value between 0 and 1. We decided on a sigmoidal relationship because we assume the ratio was low early in
+the pandemic when confirming a new infection was limited primarily by testing capacity, but has probably fallen (in many
+localities) to a more or less consistent value as test capacity has risen. Since getting tested is voluntary, and since
+many infections of SARS-CoV-2 are asymptomatic or only mildly symptomatic, it is unlikely to rise to near 1.0. After fitting
+a sigmoidal curve to our observed and estimated cases through now - *k* days, we then turn to the last period. To obtain
+estimated infections for these days, we divided our observed cases (in recent days) by our fitted values from the sigmoid
+curve.
+
+```{r, echo=FALSE}
+library(covid19.Explorer)
+data(Data)
+infection.estimator(data=Data)
+```
+
+
+### *More coming soon...*
+
+[&larr; back to to covid19-explorer.org](http://covid19-explorer.org/)
