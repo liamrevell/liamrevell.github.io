@@ -11,9 +11,9 @@ This document contains a detailed methodology for the R package
 
 In this package & web application we estimate total infections (from deaths & confirmed cases), graph the distribution
 of infections over time among U.S. states, visualize COVID-19 deaths by age & by sex (as well as compared to deaths from all causes),
-and analyze excess mortality through time as a function of of age & state or jurisdiction.
+and analyze excess mortality through time in 2020 as a function of of age & state or jurisdiction.
 
-Virtually all data come from the United States [Centers for Disease Control and Prevention](https://www.cdc.gov/) 
+Virtually all of our data come from the United States [Centers for Disease Control and Prevention](https://www.cdc.gov/) 
 [National Center for Health Statistics](https://www.cdc.gov/nchs/index.htm) or the U.S. [Census Bureau](https://www.census.gov/).
 Unfortunately, at this time we can only offer detailed analysis of United States COVID-19 and excess mortality data. It would
 be to our great interest to compare not only U.S. states & jurisdictions, but also foreign countries; however, the wide 
@@ -23,7 +23,7 @@ make this endeavor entirely beyond the scope of our project here.
 ## Estimating infections
 
 Since the beginning of this pandemic, it's been [widely understood](https://doi.org/10.1038/s41467-020-18272-4) that
-confirmed COVID-19 cases underestimate the true number of infections, at some times by a [very large 
+confirmed COVID-19 cases underestimate the true number of infections, sometimes by a [very large 
 margin](https://www.cdc.gov/library/covid19/092220_covidupdate.html).
 
 This is likely due to multiple factors. One is limited testing capacity at the start of the epidemic. A second is the fact
@@ -35,11 +35,11 @@ cases; however, deaths are a *lagging indicator* of infections.
 
 Consequently, we chose to use a model in which the number of new infections on day *i* was estimated by taking the number of 
 observed COVID-19 deaths on day *i* + *k* and then dividing this quantity by the 
-[infection fatality ratio](https://en.wikipedia.org/wiki/Case_fatality_rate#Infection_fatality_rate) (IFR). In other words,
+[infection fatality ratio](https://en.wikipedia.org/wiki/Case_fatality_rate#Infection_fatality_rate) (also called the infection fatality *rate* or IFR). In other words,
 given 50 COVID-19 deaths on day *i* + *k*, and an IFR of 0.5%, we would predict that 1,000 new SARS-CoV-2 infections had occurred 
 on day *i*.
 
-Both *k*, the average lag time from infection to death (in cases of SARS-CoV-2 infection that lead to death), and IFR are to be
+Both *k*, the average lag time from infection to death (in cases of SARS-CoV-2 infections resulting in death), and IFR are to be
 specified by the user. 
 
 A reasonable lag time between infection & death is approximately three weeks. For example, during a large outbreak in 
@@ -47,7 +47,9 @@ A reasonable lag time between infection & death is approximately three weeks. Fo
 recorded cases and peak confirmed COVID-19 deaths was ~17 days. (Infected persons normally test negative for the first few days 
 following infection, so this more or less corresponds with a lag-time of three weeks.)
 
-Likewise, IFR values ranging from about 0.3% to >1.0% have been reported over the course of the pandemic. For instance, [a study 
+Likewise, IFR values ranging from about 0.3% to >1.0% have been reported over the course of the pandemic. 
+
+For instance, [a study 
 based on an early, super-spreader event in Germany](https://doi.org/10.1038/s41467-020-19509-y) estimated an IFR (corrected to 
 the demographic distribution of the local population) of 0.36%. Other studies have reported higher estimated IFR. For example, 
 an [Italian study](https://doi.org/10.1101/2020.04.18.20070912) estimated an overall infection fatality rate of 1.31%. In 
@@ -67,13 +69,13 @@ The approach of using *only* confirmed COVID-19 deaths - though robust - does no
 infections between now - *k* days and the present. For this, we assumed a [sigmoidal](https://en.wikipedia.org/wiki/Sigmoid_function) 
 relationship between time and the ratio of confirmed cases over the true number of infections. 
 
-Since the true number of new infections cannot exceed the number of confirmed cases, this ratio must have a value between 0 and 1. 
+Since the true number of new infections cannot exceed the number of confirmed cases, logic dictates that this ratio must have a value between 0 and 1. 
 We decided on a sigmoidal relationship because we assume the ratio was low early in the pandemic when confirming a new infection was 
-limited primarily by testing capacity, but has probably fallen (in many localities) to a more or less consistent value as test 
-capacity has risen. Since getting tested is voluntary, and since many infections of SARS-CoV-2 are asymptomatic or only mildly 
+limited primarily by testing capacity, but has probably risen (in many localities) to a more or less consistent value as test 
+capacity has increased. Since getting tested is voluntary, and since many infections of SARS-CoV-2 are asymptomatic or only mildly 
 symptomatic, it is unlikely to rise to near 1.0 in the U.S. regardless of testing. 
 
-Figure 1 below shows daily estimated infections / confirmed cases for all U.S. data over the entire course of the pandemic. Although the 
+Figure 1 below shows daily estimated infections (under our model) / confirmed cases for all U.S. data over the entire course of the pandemic. Although the 
 fit of the sigmoid function is relatively good, readers might note that the fitted curve *overestimates* the ratio of confirmed cases / 
 infections near the start of the pandemic (i.e., to the left-hand side of the plot). This is not particularly worrisome because the most 
 important part of the graph is the *right* side - since this is the part that will be use to extrapolate recent infection numbers from 
@@ -95,7 +97,7 @@ that in practice this value is estimated *separately* for each jurisdiction that
 states and *higher* in others.
 
 After fitting this sigmoidal curve to our observed and estimated cases through now - *k* days, we then turn to the last period. 
-To obtain estimated infections for these days, we simply divide our observed cases (in recent days) by our fitted values from the 
+To obtain estimated infections for these days, we simply divide our observed cases from the last *k* days of data by our fitted values from the 
 sigmoid curve.
 
 Figure 2 shows the result of this analysis applied to data for the U.S. state of California.
@@ -107,18 +109,22 @@ infection.estimator(data=Data,
 	las=1,cex.axis=0.8,cex.lab=0.9)
 ```
 
-In addition to computing the raw number of daily infections, this method can also compute infections as a percentage of the total
-population. For this calculation, we obtained state populations through time from the 
+In addition to computing the raw number of daily infections, this method can also be used to compute infections as a percentage of the total
+population. 
+
+For this calculation, we obtained state populations through time from the 
 [U.S. Census Bureau](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html). Data is only given through 
-2019, so to obtain state-level 2020 population sizes, we used a total mid-year 2020 U.S. population estimate of 
+2019, so to estimate state-level 2020 population sizes, we used a total mid-year 2020 U.S. population estimate of 
 [331,002,651](https://www.worldometers.info/world-population/us-population/)) to 'correct' each 2019 state population size to a 2020 
-level. Our dataset did *not* include a separate population size estimate for Puerto Rico - so we used the values from 
+level.
+
+Our dataset did *not* include a separate population size estimate for Puerto Rico - so we used the values from 
 [Wikipedia](https://en.wikipedia.org/wiki/Demographics_of_Puerto_Rico), and a similar correction to adjust to 2020 levels. (This 
 probably resulted in a mid-2020 population size that is too *high* based on this [alternative 
 source](https://ns.worldometers.info/world-population/puerto-rico-population/); however we imagine that this is a relatively small
 effect.)
 
-Finally, CDC mortality data splits New York City (NYC) from the rest of New York state. Since this contrast is interesting, we 
+Finally, CDC mortality data splits New York City (NYC) from the rest of New York state. Since this contrast is [interesting](https://en.wikipedia.org/wiki/COVID-19_pandemic_in_New_York_City), we 
 maintained this separation - and used a mid-2019 population estimate of ([8,336,817](https://en.wikipedia.org/wiki/New_York_City))
 for NYC, and then simply assumed that the population of NYC has changed between 2015 and 2020 in proportion to the rest of the state. 
 (Since they have a part:whole relationship, this seemed pretty reasonable.)
@@ -150,7 +156,7 @@ infection.estimator(data=Data,
 
 This model is very simple. 
 
-We merely assume that if we *knew* the true number of infections and the IFR for our population of interest on day *i*, then we could
+We merely assume that if we *knew* the *true* number of infections and the IFR for our population of interest on day *i*, then we could
 *predict* the number of deaths on day *i* + *k*, in which *k* is the lag-time from infection to death (for SARS-CoV-2 infections
 leading to death). Having observed the deaths, & supposing a particular value of IFR for day *i*, we can likewise work backwards and 
 *reconstruct* the most plausible number of infections for that day.
@@ -162,8 +168,8 @@ IFR for the population of interest.
 An IFR that is *too high* (overall or at a specific time during the pandemic) will have the 
 general effect of causing us to systematically *underestimate* the true number of infections. This makes sense because if we imagine
 observing 50 COVID-19 deaths, an IFR of 0.5% would imply that these deaths correspond to a total of 1,000 infections. By contrast, 
-a higher IFR of, say, 1.0% would only imply that only 500 infections had occurred. Assuming an IFR value that is *too low* will, 
-obviously, have exactly the opposite effect and thus cause us to *overestimate* the number of infections that have occurred.
+a higher IFR of, say, 1.0% would only imply that only 500 infections had occurred. Assuming an IFR value that is *too low* will
+(obviously) have exactly the opposite effect and thus cause us to *overestimate* the number of infections that have occurred.
 
 We *do* assume a homogeneous value of *k* at any particular time. In fact, literature sources report lag-times between two and 
 eight weeks; however, we assert that inferences by our method should not be badly off - so long as IFR does not swing about wildly 
@@ -239,7 +245,7 @@ infection.range.estimator(state="Louisiana",
 This plotting method shares all the assumptions of our infection estimator. 
 
 It should be noted that although the shaded region around
-the mean number of daily or cumulative infections in Figure 5 *looks* like a confidence interval, it would only be valid to consider
+the mean number of daily or cumulative infections in Figure 5 *looks* like a confidence band, it would only be valid to consider
 it as such if our high and low values of the IFR through time represent a confidence interval around the true infection-fatality-ratio
 (and, even then, this confidence interval would only take into account one source of uncertainty about the true daily case numbers - the
 IFR).
@@ -256,6 +262,7 @@ different infection dynamics through time in the different states being compared
 The following graph (Figure 6) shows a comparison of daily deaths and estimated infections in Michigan and Ohio.
 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 6**: Daily confirmed COVID-19 deaths (a) or estimated infections (b) in the U.S. states of Michigan vs. Ohio."}
+par(lwd=2)
 compare.infections(data=Data,
 	state=c("Michigan","Ohio"),
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
@@ -279,7 +286,7 @@ covid.deaths(data=Data,
 	las=1,cex.axis=0.8,cex.lab=0.9)
 ```
 
-In addition to graphing the raw number of deaths, this function can also be used to show the deaths / 1M population. To do this, we used
+As well as graphing the raw number of deaths, this function can also be used to show the deaths / 1M population. To do this, we used
 estimated U.S. populations by age and sex from the United States Census Bureau (Table 2).
 
 ```{r, echo=FALSE}
@@ -348,6 +355,7 @@ knitr::kable(Deaths,
 	format.args=list(big.mark=","))
 ```
 
+<br>
 To *correct* observed deaths in prior years to 2020 levels, we simply multiplied the past-year death tally by the ratio the jurisdiction 
 population in 2020 compared to the population in the past year.
 
@@ -445,5 +453,10 @@ age.deaths(state="Florida",
 
 This analysis shows an approximately 30% above normal death rate in 2020 compared to 2015-2019 for adults 25-44 years of age in Florida.
 
+### Contact & other information
+
+The R package [*covid19.Explorer*](https://github.com/liamrevell/covid19.Explorer/) and the website [covid19-explorer.org](http://covid19-explorer.org) were developed by [Dr. Liam Revell](http://faculty.umb.edu/liam.revell/). Please [contact Liam](mailto:liam.revell@umb.edu) with questions about this page, the [covid19-explorer.org website](http://covid19-explorer.org) or the R package.
+
+<br><br>
 [&larr; back to to covid19-explorer.org](http://covid19-explorer.org/)
 
