@@ -10,11 +10,15 @@ This document contains a detailed methodology for the R package
 [covid19-Explorer.org](http://covid19-Explorer.org).
 
 In this package & web application we estimate total infections (from deaths & confirmed cases), graph the distribution
-of infections over time among states, visualize COVID-19 deaths by age & sex, as well as compared to deaths from all causes,
+of infections over time among U.S. states, visualize COVID-19 deaths by age & by sex (as well as compared to deaths from all causes),
 and analyze excess mortality through time as a function of of age & state or jurisdiction.
 
 Virtually all data come from the United States [Centers for Disease Control and Prevention](https://www.cdc.gov/) 
 [National Center for Health Statistics](https://www.cdc.gov/nchs/index.htm) or the U.S. [Census Bureau](https://www.census.gov/).
+Unfortunately, at this time we can only offer detailed analysis of United States COVID-19 and excess mortality data. It would
+be to our great interest to compare not only U.S. states & jurisdictions, but also foreign countries; however, the wide 
+variety of different ways in which these data are recorded and reported, as well as variation in data quality between countries,
+make this endeavor entirely beyond the scope of our project here.
 
 ## Estimating infections
 
@@ -23,15 +27,17 @@ confirmed COVID-19 cases underestimate the true number of infections, at some ti
 margin](https://www.cdc.gov/library/covid19/092220_covidupdate.html).
 
 This is likely due to multiple factors. One is limited testing capacity at the start of the epidemic. A second is the fact
-that testing is voluntary, and many cases of SARS-CoV-2 infection present asymptotically or with mild symptoms.
+that testing is voluntary, and many cases of SARS-CoV-2 infection present 
+[asymptotically](https://doi.org/10.1038/d41586-020-03141-3) or with mild symptoms.
 
 As such, we consider confirmed COVID-19 *deaths* to be a much more reliable indicator of disease burden than confirmed
 cases; however, deaths are a *lagging indicator* of infections.
 
 As such, we chose to use a model in which the number of new infections on day *i* was estimated by taking the number of 
 observed COVID-19 deaths on day *i* + *k* and then dividing this quantity by the 
-[infection fatality ratio](https://en.wikipedia.org/wiki/Case_fatality_rate#Infection_fatality_rate) (IFR). (In other words,
-given 50 COVID-19 deaths on day *i* + *k*, and an IFR of 0.5%, we would predict 1,000 new SARS-CoV-2 infections on day *i*.)
+[infection fatality ratio](https://en.wikipedia.org/wiki/Case_fatality_rate#Infection_fatality_rate) (IFR). In other words,
+given 50 COVID-19 deaths on day *i* + *k*, and an IFR of 0.5%, we would predict that 1,000 new SARS-CoV-2 infections had occurred 
+on day *i*.
 
 Both *k*, the average lag time from infection to death (in cases of SARS-CoV-2 infection that lead to death) and IFR are 
 specified by the user. 
@@ -41,15 +47,16 @@ A reasonable lag time between infection & death is approximately three weeks. Fo
 recorded cases and peak confirmed COVID-19 deaths was ~17 days. (Infected persons normally test negative for the first few days 
 following infection, so this more or less corresponds with a lag-time of three weeks.)
 
-Likewise, IFR values ranging from about 0.3% to >1.0% have been reported over the course of the pandemic. For instance, a study 
-based on an early, super-spreader event in Germany estimated an IFR (corrected to the demographic distribution of the general 
-population) of [0.36%](https://doi.org/10.1038/s41467-020-19509-y). Other studies have reported higher estimated IFR. For example, 
+Likewise, IFR values ranging from about 0.3% to >1.0% have been reported over the course of the pandemic. For instance, [a study 
+based on an early, super-spreader event in Germany](https://doi.org/10.1038/s41467-020-19509-y) estimated an IFR (corrected to 
+the demographic distribution of the local population) of 0.36%. Other studies have reported higher estimated IFR. For example, 
 an [Italian study](https://doi.org/10.1101/2020.04.18.20070912) estimated an overall infection fatality rate of 1.31%. In 
-general, it's reasonable to suppose that IFR has fallen through time as COVID-19 treatments have improved. Likewise, even within
-the U.S. IFR is unlikely to be the same at a given date in different jurisdictions, due to differences in demographic structure
-between areas. We think it is reasonable to suppose an IFR no greater than 1.0% and declining from the start of the pandemic
-towards the present, with a current IFR of around 0.3%. We permit the user to specify a time-varying IFR by fixing the IFR at 
-each quarter and then interpolating daily IFR between each quarter using local regression smoothing (LOESS).
+general, it's reasonable to suppose that IFR has [fallen through time](https://doi.org/10.1038/d41586-020-03132-4) as treatment 
+of severely ill patients has improved. Likewise, even within the U.S. IFR is unlikely to be the same at a given date in different 
+jurisdictions, due to differences in demographic structure between areas. We think it is reasonable to suppose an IFR no greater 
+than 1.0% and declining from the start of the pandemic towards the present, with a current IFR of around 0.3%. We permit the user 
+to specify a time-varying IFR by fixing the IFR at each quarter and then interpolating daily IFR between each quarter using [local 
+regression smoothing](https://en.wikipedia.org/wiki/Local_regression) (LOESS).
 
 Although this model is very simple, reporting can vary through time including regularly over the course of the week. To take
 these reporting artifacts into account we used both [moving averaging](https://en.wikipedia.org/wiki/Moving_average) and 
@@ -57,23 +64,172 @@ these reporting artifacts into account we used both [moving averaging](https://e
 and the LOESS smoothing paramater are controlled by the user.
 
 The approach of using *only* confirmed COVID-19 deaths - though robust - does not permit us to estimate the true number of
-infections between now - *k* and the present day. For this, we assumed a 
-[sigmoidal](https://en.wikipedia.org/wiki/Sigmoid_function) relationship between time and the ratio of confirmed cases over 
-the true number of infections. Since the true number of new infections cannot exceed the number of confirmed cases, this
-ratio must have a value between 0 and 1. We decided on a sigmoidal relationship because we assume the ratio was low early in
-the pandemic when confirming a new infection was limited primarily by testing capacity, but has probably fallen (in many
-localities) to a more or less consistent value as test capacity has risen. Since getting tested is voluntary, and since
-many infections of SARS-CoV-2 are asymptomatic or only mildly symptomatic, it is unlikely to rise to near 1.0. After fitting
-a sigmoidal curve to our observed and estimated cases through now - *k* days, we then turn to the last period. To obtain
-estimated infections for these days, we divided our observed cases (in recent days) by our fitted values from the sigmoid
-curve.
+infections between now - *k* and the present day. For this, we assumed a [sigmoidal](https://en.wikipedia.org/wiki/Sigmoid_function) 
+relationship between time and the ratio of confirmed cases over the true number of infections. 
 
-```{r, echo=FALSE}
+Since the true number of new infections cannot exceed the number of confirmed cases, this ratio must have a value between 0 and 1. 
+We decided on a sigmoidal relationship because we assume the ratio was low early in the pandemic when confirming a new infection was 
+limited primarily by testing capacity, but has probably fallen (in many localities) to a more or less consistent value as test 
+capacity has risen. Since getting tested is voluntary, and since many infections of SARS-CoV-2 are asymptomatic or only mildly 
+symptomatic, it is unlikely to rise to near 1.0. The plot below shows daily estimated infections / confirmed cases for all U.S. data 
+over the entire course of the pandemic. Although the fit of the sigmoid function is relatively good, readers might note that the 
+fitted curve *overestimates* the ratio of confirmed cases / infections near the start of the pandemic (i.e., to the left-hand side of
+the plot). This is not particularly worrisome because the most important part of the graph is the *right* side - since this is the 
+part that will be use to extrapolate recent infection numbers from observed cases.
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 1**: a) Observed U.S. daily COVID-19 deaths (red bars) and assumed IFR function (blue line). b) Ratio of confirmed COVID-19 cases / estimated infections."}
 library(covid19.Explorer)
 data(Data)
-infection.estimator(data=Data)
+infection.estimator(data=Data,
+	state="United States",
+	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
+	las=1,cex.axis=0.8,cex.lab=0.9,plot="infection.ratio",
+	window=1)
+abline(h=seq(0.1,0.6,by=0.1),lty="dotted",col="grey")
 ```
 
+Figure 1 seems to show a ratio of confirmed / estimated infections of about 0.45; however, the reader should keep in mind that in
+practice this is estimated separately for each jurisdiction.
+
+After fitting this sigmoidal curve to our observed and estimated cases through now - *k* days, we then turn to the last period. 
+To obtain estimated infections for these days, we divided our observed cases (in recent days) by our fitted values from the 
+sigmoid curve.
+
+Figure 2 shows the result of this analysis applied to data for the U.S. state of California.
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 2**: a) Observed daily COVID-19 deaths and an assumed model of IFR in which the infection fatality ratio is initially high (~1.5%), but then declines and stabilizes at around 0.6% through the present day. b) Estimated daily infections (green), cases (blue), and deaths (red)."}
+infection.estimator(data=Data,
+	state="California",
+	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
+	las=1,cex.axis=0.8,cex.lab=0.9)
+```
+
+In addition to computing the raw number of daily infections, this method can also compute infections as a percentage of the total
+population. For this calculation, we obtained state populations through time from the 
+[U.S. Census Bureau](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html). Data is only given through 
+2019, so to obtain state-level 2020 population sizes, we used a total mid-year 2020 U.S. population estimate of 
+[331,002,651](https://www.worldometers.info/world-population/us-population/)) to 'correct' each 2019 state population size to a 2020 
+level. Our dataset did *not* include a separate population size estimate for Puerto Rico - so I used the values from 
+[Wikipedia](https://en.wikipedia.org/wiki/Demographics_of_Puerto_Rico), and a similar correction to adjust to 2020 levels. (This 
+probably resulted in a mid-2020 population size that is too *high* based on this alternative 
+[source](https://ns.worldometers.info/world-population/puerto-rico-population/); however we imagine that this is a relatively small
+effect.)
+
+Finally, CDC mortality data splits New York City (NYC) from the rest of New York state. Since this contrast is interesting, we 
+maintained this separation - and used a mid-2019 population estimate of ([8,336,817](https://en.wikipedia.org/wiki/New_York_City))
+for NYC, and then simply assumed that the population of NYC has changed between 2015 and 2020 in proportion to the rest of the state. 
+(Since they have a part:whole relationship, this seemed pretty reasonable.)
+
+```{r, echo=FALSE}
+States<-state.deaths(plot="States")
+States<-States[sort(rownames(States)),]
+States<-States[-which(rownames(States)=="United States"),]
+knitr::kable(round(States),
+	caption="**Table 1**: Estimated state population by year for 50 states, D.C., and Puerto Rico. New York is divided into two jurisdictions: New York City and New York, excluding NYC.",
+	align="r", format = "html", table.attr = "style='width:100%;'",
+	format.args=list(big.mark=","))
+```
+
+<br>
+The question of cumulative percent infected is relevant to the (unnecessarily controversial) concept of ['herd 
+immunity'](https://en.wikipedia.org/wiki/Herd_immunity). The following graph shows estimated infections as a fraction of the total 
+population for the U.S. state of Texas, using the same IFR model as in Figures 1 and 2.
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 3**: a) Observed daily COVID-19 deaths and an assumed model of IFR. b) Estimated daily infections (green), cases (blue), and deaths (red)."}
+infection.estimator(data=Data,
+	state="Texas",
+	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
+	las=1,cex.axis=0.8,cex.lab=0.9,
+	cumulative=TRUE,percent=TRUE)
+```
+
+### Assumptions of the method
+
+This model is very simple. We merely assume that if we *knew* the IFR for our population of interest on day *i* then we could
+*predict* the number of deaths on day *i* + *k*, in which *k* is the lag-time from infection to death (for SARS-CoV-2 infections
+leading to death). Having observed the deaths, & supposing a particular value of IFR for day *i*, we can likewise *reconstruct*
+the most plausible number of infections for that day.
+
+Although the model does not pre-suppose a specific value or function for IFR, it does require that one be specified by the user.
+As such, it is probably worth mentioning the effect of setting an IFR value that is too *high* or too *low* compared to the true
+IFR for the population of interest. An IFR that is *too high* (overall or at a specific time during the pandemic) will have the 
+general effect of causing us to systematically *underestimate* the true number of infections. This makes sense because if we imagine
+observing 50 COVID-19 deaths an IFR of 0.5% implies that these correspond to a total of 1,000 infections; whereas an IFR of 1.0%
+would only imply that 500 infections occurred. Assuming an IFR value that is *too low* will, obviously, have exactly the opposite
+effect.
+
+We *do* assume a homogeneous value of *k* at any particular time. In fact, literature sources report lag-times between two and 
+eight weeks; however, we assert that inferences by our method should not be badly off - so long as IFR does not swing about wildly 
+from day to day, and so long as the number of deaths is not extremely few for any reporting period.
+
+We likewise *do* assume a constant lag-period, *k*, through time. This assumption is perhaps a bit more dubious as it is quite 
+reasonable to suspect that for a specific state or jurisdiction that as IFR falls, *k* might also increase. This is a complexity
+that we explicit chose to ignore in our model.
+
+We also assume that a more-or-less consistent fraction of COVID-19 deaths are reported as such - that is, that COVID-19 is neither
+systematically under- or overreported as the cause of death at any point during the course of the pandemic. A violation of this 
+assumption is not quite as grave as it might seem, however, because it can simply be 'baked in' to our model for IFR. For instance,
+if we imagine that COVID-19 deaths were *under*-reported near the start of the pandemic (due to limited testing capacity), this 
+can be accommodated into our model for daily infections simply by specifying a slightly lower IFR value at that time (keeping in
+mind, of course, that the true IFR has generally [been falling over time](https://doi.org/10.1038/d41586-020-03132-4)).
+
+In estimating the number of daily infections from now - *k* to the present, we *assume* that the relationship between time (since
+the first infections) and the ratio of confirmed and estimated infections is *sigmoidal* in shape (Figure 1). This is a *testable* 
+assumption that seems to hold fairly well across the entire U.S. (Figure 1) and  for some jurisdictions , but less well for others. 
+It is equally plausible to suspect that this ratio could shift not only as a function of time, but also as demands on testing 
+capacity rise and fall with case numbers. This should be the subject of additional study, but our suspicion is that this would not 
+be likely to have a large effect on our model compared to other simplifications.
+
+## Mapping the distribution of infections across states
+
+A hallmark feature of the U.S. COVID-19 pandemic has been the shifting geographic distribution of infections through time
+among states.
+
+To capture this dynamic, we devised a plotting method in which we'd overlay the daily or cumulative COVID-19 infections under our
+model (outlined above), separated by state. We specifically selected a geographic color palette such that 
+[RGB](https://en.wikipedia.org/wiki/RGB_color_model) color values were made to vary as a function of latitude, longitude, and 
+(arbitrarily) geographic distance from Florida. This is intended to have the effect of making the regional geographic
+progression of infection more apparent in the graph. The results can be seen in Figure 4.
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=8, units="in", dpi=150, fig.cap="**Figure 4**: Cumulative estimated infections separated by state."}
+infections.by.state(data=Data,
+	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
+	las=1,cex.axis=0.8,cex.lab=0.9,span=0.15)
+```
+	
+### Assumptions of the method
+
+This plotting method shares all the assumptions of our infection estimator, above, but adds the additional assumption that our model
+of IFR is the same for all U.S. states. This assumption is quite dubious, as IFR might be expected to *rise* in locations were 
+hospital resources are overtaxed by high disease burden; and, conversely, fall in hospitals were staff have more experience in
+treating COVID-19 patients. Although we don't doubt that these nuances are important in making specific, quantitative statements
+about the particular number of infections in each state, we nonetheless believe that our method is effective at capturing the 
+overall geographic dynamics of the COVID-19 pandemic in the U.S.
+
+## Computing a plausible range of infection numbers
+
+A relatively simple extension of our infection estimation method, above, is to admit *uncertainty* about the specific value of IFR
+at any particular time during the pandemic, and measure the *sensitivity* of our prediction to a range of different values of IFR.
+
+This model can be design to accomodate an assumption of broad uncertainty in IFR early during the pandemic, with both decreasing
+IFR, as well as falling uncertainty in IFR, towards the present. This is illustrated for data from the U.S. state of Louisiana in 
+Figure 5.
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 5**: a) Confirmed COVID-19 deaths. b) A corresponding plausible range of daily COVID-19 infections, under our model."}
+infection.range.estimator(state="Louisiana",
+	data=Data,
+	ifr.low=c(0.008,0.006,0.005,0.004,0.004,0.004),
+	ifr.high=c(0.022,0.014,0.009,0.007,0.007,0.007),
+	span=0.15)
+```
+
+### Assumptions of this method
+
+This plotting method shares all the assumptions of our infection estimator. It should be noted that although the shaded region around
+the mean number of daily or cumulative infections in Figure 5 *looks* like a confidence interval, it would only be valid to consider
+it as such if our high and low values of the IFR through time represent a confidence interval around the true infection-fatality-ratio
+(and, even then, this confidence interval would only take into account one source of uncertainty about the true daily case numbers - the
+IFR).
 
 ### *More coming soon...*
 

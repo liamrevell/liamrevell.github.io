@@ -1,5 +1,5 @@
 ---
-title: "Excess Mortality Explorer"
+title: "U.S. COVID-19 Explorer"
 output: html_document
 ---
 
