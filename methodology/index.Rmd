@@ -33,7 +33,7 @@ that testing is voluntary, and many cases of SARS-CoV-2 infection present
 As such, we consider confirmed COVID-19 *deaths* to be a much more reliable indicator of disease burden than confirmed
 cases; however, deaths are a *lagging indicator* of infections.
 
-As such, we chose to use a model in which the number of new infections on day *i* was estimated by taking the number of 
+Consequently, we chose to use a model in which the number of new infections on day *i* was estimated by taking the number of 
 observed COVID-19 deaths on day *i* + *k* and then dividing this quantity by the 
 [infection fatality ratio](https://en.wikipedia.org/wiki/Case_fatality_rate#Infection_fatality_rate) (IFR). In other words,
 given 50 COVID-19 deaths on day *i* + *k*, and an IFR of 0.5%, we would predict that 1,000 new SARS-CoV-2 infections had occurred 
@@ -267,6 +267,183 @@ compare.infections(data=Data,
 This plotting method shares all the assumptions of our infection estimator, and (just like our method for visualizing the geographic 
 dynamics of the pandemic across *all* U.S. states) requires that we use the same IFR model for each state.
 
-### *More coming soon...*
+## Visualizing the number of COVID-19 deaths by age
+
+In addition to modeling the number of infections through time, the *covid19.Explorer* [R 
+package](https://github.com/liamrevell/covid19.Explorer/) and [website](http://covid19-explorer.org) also allow users to visualize the 
+distribution of COVID-19 deaths by age & sex (Figure 7).
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 7**: a) Weekly confirmed COVID-19 deaths subdivided by age. b) Weekly COVID deaths (red) and deaths by other causes (blue) for all ages."}
+covid.deaths(data=Data,
+	plot="bar",
+	las=1,cex.axis=0.8,cex.lab=0.9)
+```
+
+In addition to graphing the raw number of deaths, this function can also be used to show the deaths / 1M population. To do this, we used
+estimated U.S. populations by age and sex from the United States Census Bureau (Table 2).
+
+```{r, echo=FALSE}
+Ages<-Data$Age.Pop
+nn<-Ages$Age.Group[Ages$Sex=="Female"]
+Ages<-data.frame(Female=Ages$Total.Population[Ages$Sex=="Female"],
+	Male=Ages$Total.Population[Ages$Sex=="Male"],
+	Total=Ages$Total.Population[Ages$Sex=="Female"]+
+	Ages$Total.Population[Ages$Sex=="Male"])
+rownames(Ages)<-nn
+knitr::kable(Ages,
+	caption="**Table 2**: Estimated U.S. population by age group and sex, 2020.",
+	align="r", format = "html", table.attr = "style='width:50%;'",
+	format.args=list(big.mark=","))
+```
+
+<br>
+This permits us to (for example) demonstrate the COVID-19 is not an important source of death for U.S. people under the age of 15, accounting
+for only about 0.4% of all deaths (Figure 8).
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 8**: a) Cumulative confirmed COVID-19 deaths for children <15. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
+covid.deaths(age.group=c("Under 1 year","1-4 years","5-14 years"),
+	data=Data,
+	plot="smooth",
+	show="per.capita",
+	cumulative=TRUE,
+	split.groups=FALSE,
+	las=1,cex.axis=0.8,cex.lab=0.9)
+```
+
+By contrast, COVID-19 accounts for >10% of all deaths of U.S. persons aged &ge;75 years of age (Figure 9).
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 9**: a) Cumulative confirmed COVID-19 deaths for U.S. adults 75 years of age and older. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
+covid.deaths(age.group=c("75-84 years", "85 years and over"),
+	data=Data,
+	plot="smooth",
+	show="per.capita",
+	cumulative=TRUE,
+	split.groups=FALSE,
+	las=1,cex.axis=0.8,cex.lab=0.9)
+```
+
+## Excess mortality analysis
+
+Lastly, the the *covid19.Explorer* [R package](https://github.com/liamrevell/covid19.Explorer/) and 
+[website](http://covid19-explorer.org) allows users to explore excess mortality by age and state, regardless of cause.
+
+For this analysis, we used the [2014-2018 weekly counts of deaths by state and select 
+causes](https://data.cdc.gov/NCHS/Weekly-Counts-of-Deaths-by-State-and-Select-Causes/3yf8-kanr) and the [2019-2020 provisional death 
+counts](https://data.cdc.gov/NCHS/Weekly-Counts-of-Deaths-by-State-and-Select-Causes/muzy-jte6) from the National Center for Health 
+Statistics (NCHS) of the United States Centers for Disease Control and Prevention.
+
+Provisional death counts are incomplete, particularly for recent weeks, due to the lag time between when a death occurs and when a 
+death certificate is submitted to the NCHS. This accounts for the drop-off in excess deaths towards the right of each plot in 2020 data. 
+This lag may also differ between different jurisdictions.
+
+To compute the raw death counts for any jurisdiction, we simply tabulated the 2015-2018 counts (we excluded 2014) with the 2019-2020 
+provisional counts. The following table gives an example of tabulated death counts for a the state of Massachusetts.
+
+```{r, echo=FALSE}
+Deaths<-state.deaths(plot="Deaths")
+Deaths<-cbind(Week=1:52,Deaths)
+knitr::kable(Deaths,
+	caption="**Table 3**: Weekly death counts and provisional death counts in Massachusetts according to the NCHS from 2015 through 2020.",
+	align="r",format = "html", table.attr = "style='width:50%;'",
+	format.args=list(big.mark=","))
+```
+
+To *correct* observed deaths in prior years to 2020 levels, we simply multiplied the past-year death tally by the ratio the jurisdiction 
+population in 2020 compared to the population in the past year.
+
+Table 4 gives an example using the jurisdiction of New Jersey.
+
+```{r, echo=FALSE}
+Deaths<-state.deaths(state="New Jersey",plot="Deaths",corrected=TRUE)
+Deaths<-cbind(Week=1:52,Deaths)
+knitr::kable(round(Deaths,1),
+	caption="**Table 4**: Weekly death counts and provisional death counts in New Jersey, corrected to New Jersey 2020 estimated population.",
+	align="r",format = "html", table.attr = "style='width:50%;'",
+	format.args=list(big.mark=","))
+```
+
+<br>
+To compute excess deaths for any jurisdiction, we took each column of Table 3 (or Table 4, for corrected death counts) and *subtracted* 
+the mean of columns 2015 through 2019. This treats 2015 through 2019 as 'normal' years, and 2020 as 
+[unusual](https://en.wikipedia.org/wiki/COVID-19_pandemic). Table 5 gives an example of this calculation using the jurisdiction of Texas, and 
+weekly death counts from 2015-2019 corrected to 2020 population.
+
+```{r, echo=FALSE}
+Excess<-state.deaths(state="Texas",plot="Excess",corrected=TRUE)
+Excess<-cbind(Week=1:52,Excess)
+knitr::kable(round(Excess,1),
+	caption="**Table 5**: Weekly excess death counts and provisional death counts in Texas, compared to 2015-2019 corrected death counts.",
+	align="r",format = "html", table.attr = "style='width:50%;'",
+	format.args=list(big.mark=","))
+```
+
+<br>
+To compute the weekly death rate per one-million population, we now divided the total number of deaths in Table 3 by the total population 
+(in millions) of each jurisdiction. Note, that since we used different population sizes for each year of data (Table 2) the notion of 
+'correcting' to 2020 population size is meaningless here.
+
+Table 6 gives the weekly per 1M population death rate for the District of Columbia.
+
+```{r, echo=FALSE}
+PerCapita<-state.deaths(state="District of Columbia",plot="PerCapita")
+PerCapita<-cbind(Week=1:52,PerCapita)
+knitr::kable(round(PerCapita,1),
+	caption="**Table 6**: Weekly deaths and provisional deaths per 1M population in the District of Columbia.",
+	align="r",format = "html", table.attr = "style='width:50%;'",
+	format.args=list(big.mark=","))
+```
+<br>
+To compute the weekly excess per capita deaths (once again, per 1M population), we took the excess deaths and divided by the population 
+size of the corresponding jurisdiction - in millions. The cumulative excess per capita deaths is one way of measuring the death toll of 
+COVID-19.
+
+Table 7 gives the weekly per 1M population excess death rate for New York City.
+
+```{r, echo=FALSE}
+PerCapitaExcess<-state.deaths(state="New York City",plot="PerCapitaExcess")
+PerCapitaExcess<-cbind(Week=1:52,PerCapitaExcess)
+knitr::kable(round(PerCapitaExcess,1),
+	caption="**Table 7**: Weekly excess deaths and provisional deaths per 1M population in New York City.",
+	align="r",format = "html", table.attr = "style='width:50%;'",
+	format.args=list(big.mark=","))
+```
+
+<br>
+Finally, to calculate the weekly percent above normal, we took the ratio of the observed death counts compare to the mean from 2015-2019. 
+Once again, this treats 2015 through 2019 as 'normal' years, and 2020 as [unusual](https://en.wikipedia.org/wiki/COVID-19_pandemic). 
+Table 8 gives an example of the weekly percent above normal for the jurisdiction of Louisiana. To accumulate the percent above normal, we 
+cannot simply accumulate the week-by-week percentages (as we do for excess deaths). Instead we must compute the cumulative deaths in each 
+year and compare them to the 2015-2019 average cumulative deaths by the same week.
+
+```{r, echo=FALSE}
+PercentAbove<-state.deaths(state="Louisiana",plot="PercentAbove")
+PercentAbove<-cbind(Week=1:52,PercentAbove)
+knitr::kable(round(PercentAbove,1),
+	caption="**Table 8**: Weekly percent above normal deaths for Louisiana.",
+	align="r",format = "html", table.attr = "style='width:40%;'",
+	format.args=list(big.mark=","))
+```
+
+<br>
+Figure 10 shows the weekly and cumulative percent deaths above normal for the U.S. state of Michigan.
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 10**: Weekly (a) and cumulative (b) % deaths above normal for the U.S. state of Michigan."}
+state.deaths(state="Michigan",data=Data,
+	las=1,cex.axis=0.8,plot="percent above normal")
+```
+
+We calculated deaths above normal by *age* in exactly the same way, but in this case since we lacked detailed demographic information by
+state (i.e., age-stratified population sizes), we show *only* excess deaths and percent deaths above normal. Figure 11 gives an example for
+persons aged 25-44 from the U.S. state of Florida.
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 11**: Weekly (a) and cumulative percent (b) deaths above normal for adults aged 25-44 in Florida during 2020."}
+age.deaths(state="Florida",
+	age.group="25-44 years",
+	data=Data,
+	las=1,cex.axis=0.8,plot="raw & percent above normal")
+```
+
+This analysis shows an approximately 30% above normal death rate in 2020 compared to 2015-2019 for adults 25-44 years of age in Florida.
 
 [&larr; back to to covid19-explorer.org](http://covid19-explorer.org/)
+
