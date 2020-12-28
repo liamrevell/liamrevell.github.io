@@ -89,7 +89,9 @@ than 1.0% and declining from the start of the pandemic towards the present, with
 to specify a time-varying IFR by fixing the IFR at each quarter and then interpolating daily IFR between each quarter using [local 
 regression smoothing](https://en.wikipedia.org/wiki/Local_regression) (LOESS).
 
-Although this model is very simple, reporting can vary through time including regularly over the course of the week. To take
+Reporting can vary through time including regularly over the course of the week. (For instance, fewer COVID-19 deaths tend
+to be [reported on the weekends](https://consultqd.clevelandclinic.org/the-weekend-effect-and-covid-19-mortality/) compared to 
+Monday through Friday.)  To take
 these reporting artifacts into account we used both [moving averaging](https://en.wikipedia.org/wiki/Moving_average) and 
 [local regression](https://en.wikipedia.org/wiki/Local_regression) (LOESS) smoothing. Both the window for the moving average
 and the LOESS smoothing parameter are controlled by the user.
@@ -101,7 +103,7 @@ relationship between time and the ratio of confirmed cases over the true number 
 Since the true number of new infections cannot exceed the number of confirmed cases, logic dictates that this ratio must have a value between 0 and 1. 
 We decided on a sigmoidal relationship because we assume the ratio was low early in the pandemic when confirming a new infection was 
 limited primarily by testing capacity, but has probably risen (in many localities) to a more or less consistent value as test 
-capacity has increased. Since getting tested is voluntary, and since many infections of SARS-CoV-2 are asymptomatic or only mildly 
+capacity increased. Since getting tested is voluntary, and since many infections of SARS-CoV-2 are asymptomatic or only mildly 
 symptomatic, it is unlikely to rise to near 1.0 in the U.S. regardless of testing. 
 
 Figure 1 below shows daily estimated infections (under our model) / confirmed cases for all U.S. data over the entire course of the pandemic. Although the 
@@ -123,7 +125,7 @@ abline(h=seq(0.1,0.6,by=0.1),lty="dotted",col="grey")
 
 Figure 1 seems to show a ratio of confirmed / estimated infections of about 0.45 at the present; however, the reader should keep in mind 
 that in practice this value is estimated *separately* for each jurisdiction that is being analyzed, and as such might be *lower* in some
-states and *higher* in others.
+states and *higher* in others, even for a constant IFR value or function.
 
 After fitting this sigmoidal curve to our observed and estimated cases through now - *k* days, we then turn to the last period. 
 To obtain estimated infections for these days, we simply divide our observed cases from the last *k* days of data by our fitted values from the 
@@ -142,7 +144,9 @@ In addition to computing the raw number of daily infections, this method can als
 population. 
 
 For this calculation, we obtained state populations through time from the 
-[U.S. Census Bureau](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html). Data is only given through 
+[U.S. Census Bureau](https://www.census.gov/data/datasets/time-series/demo/popest/2010s-state-total.html). 
+
+Data is only given through 
 2019, so to estimate state-level 2020 population sizes, we used a total mid-year 2020 U.S. population estimate of 
 [331,002,651](https://www.worldometers.info/world-population/us-population/)) to 'correct' each 2019 state population size to a 2020 
 level.
@@ -155,8 +159,8 @@ effect.)
 
 Finally, CDC mortality data splits New York City (NYC) from the rest of New York state. Since this contrast is [interesting](https://en.wikipedia.org/wiki/COVID-19_pandemic_in_New_York_City), we 
 maintained this separation - and used a mid-2019 population estimate of ([8,336,817](https://en.wikipedia.org/wiki/New_York_City))
-for NYC, and then simply assumed that the population of NYC has changed between 2015 and 2020 in proportion to the rest of the state. 
-(Since they have a part:whole relationship, this seemed pretty reasonable.)
+for NYC, then simply assumed that the population of NYC has changed between 2015 and 2020 in proportion to the rest of the state. 
+(Since they have a part : whole relationship, this seemed pretty reasonable.)
 
 ```{r, echo=FALSE}
 States<-state.deaths(plot="States")
@@ -181,6 +185,18 @@ infection.estimator(data=Data,
 	cumulative=TRUE,percent=TRUE)
 ```
 
+This plot suggests that perhaps around 17% of the population in Texas has already been infected; however, users should keep in mind that 
+this is entirely dependent on how we *decided* to model IFR through time. To see this, let's take the same state (Texas) and imagine 
+(perhaps relatively naively) a *constant* IFR of 0.5%, rather than one that declines through time.
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 4**: The same analysis as Figure 3, but assuming a constant IFR of 0.5%."}
+infection.estimator(data=Data,
+	state="Texas",
+	ifr=0.005,
+	las=1,cex.axis=0.8,cex.lab=0.9,
+	cumulative=TRUE,percent=TRUE)
+```
+
 ### Assumptions of the method
 
 This model is very simple. 
@@ -196,9 +212,10 @@ IFR for the population of interest.
 
 An IFR that is *too high* (overall or at a specific time during the pandemic) will have the 
 general effect of causing us to systematically *underestimate* the true number of infections. This makes sense because if we imagine
-observing 50 COVID-19 deaths, an IFR of 0.5% would imply that these deaths correspond to a total of 1,000 infections. By contrast, 
-a higher IFR of, say, 1.0% would only imply that only 500 infections had occurred. Assuming an IFR value that is *too low* will
-(obviously) have exactly the opposite effect and thus cause us to *overestimate* the number of infections that have occurred.
+observing 50 COVID-19 deaths, an IFR of 0.5% would imply that these deaths correspond to a total of 10,000 infections. By contrast, 
+a higher IFR of, say, 1.0% would only imply that only 5,000 infections had occurred. Assuming an IFR value that is *too low* will
+(obviously) have exactly the opposite effect and thus cause us to *overestimate* the number of infections that have occurred. (This
+should help readers understand the difference between Figures 3 & 4, above.)
 
 We *do* assume a homogeneous value of *k* at any particular time. In fact, literature sources report lag-times between two and 
 eight weeks; however, we assert that inferences by our method should not be badly off - so long as IFR does not swing about wildly 
@@ -217,8 +234,8 @@ mind, of course, that the true IFR has generally [been falling through time](htt
 
 In estimating the number of daily infections from now - *k* days to the present, we *assume* that the relationship between time (since
 the first infections) and the ratio of confirmed and estimated infections is *sigmoidal* in shape (Figure 1). This is a *testable* 
-assumption that seems to hold fairly well across the entire U.S. (Figure 1) and  for some jurisdictions , but less well for others. 
-It is equally plausible to suspect that this ratio could shift not only as a function of time, but also as demands on testing 
+assumption that seems to hold fairly well across the entire U.S. (Figure 1) and  for some jurisdictions, but less well for others. 
+It's equally plausible to suspect that this ratio could shift not only as a function of time, but also as demands on testing 
 capacity rise and fall with case numbers. This should be the subject of additional study, but our suspicion is that this would not 
 be likely to have a large effect on our model compared to other simplifications.
 
@@ -233,9 +250,9 @@ model (outlined above), separated by state.
 We specifically selected a geographic color palette for this analysis such that 
 [RGB](https://en.wikipedia.org/wiki/RGB_color_model) color values were made to vary as a function of latitude, longitude, and 
 (arbitrarily) geographic distance from Florida. This is intended to have the effect of making the regional geographic
-progression of infection more apparent in the graph. The results can be seen in Figure 4.
+progression of infection more apparent in the graph. The results can be seen in Figure 5.
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=8, units="in", dpi=150, fig.cap="**Figure 4**: Cumulative estimated infections separated by state."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=8, units="in", dpi=150, fig.cap="**Figure 5**: Cumulative estimated infections separated by state."}
 infections.by.state(data=Data,
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
 	las=1,cex.axis=0.8,cex.lab=0.9,span=0.15)
@@ -247,7 +264,7 @@ This plotting method shares all the assumptions of our infection estimator, abov
 of IFR is the same for all states. This assumption is quite dubious, in fact, as IFR could be expected to *rise* in locations were 
 hospital resources are overtaxed by high disease burden; and, conversely, *fall* in hospitals were staff have more experience in
 treating COVID-19 patients. Although we don't doubt that these nuances are important in making specific, quantitative statements
-about the particular number of infections in each state, we nonetheless believe that our method is effective at capturing the 
+about the particular number of infections in each state, we nonetheless believe that our method is effective at visually capturing the 
 overall geographic dynamics of the COVID-19 pandemic in the United States.
 
 ## Computing a plausible range of infection numbers
@@ -259,9 +276,9 @@ different values of IFR. This is valuable, because the question of the IFR for C
 
 This model can be design to accomodate an assumption of broad uncertainty in IFR early during the pandemic, with both decreasing
 IFR, as well as falling uncertainty in IFR, towards the present. This is illustrated for data from the U.S. state of Louisiana in 
-Figure 5.
+Figure 6.
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 5**: a) Confirmed COVID-19 deaths. b) A corresponding plausible range of daily COVID-19 infections, under our model."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 6**: a) Confirmed COVID-19 deaths. b) A corresponding plausible range of daily COVID-19 infections, under our model."}
 infection.range.estimator(state="Louisiana",
 	data=Data,
 	ifr.low=c(0.008,0.006,0.005,0.004,0.004,0.004),
@@ -274,7 +291,7 @@ infection.range.estimator(state="Louisiana",
 This plotting method shares all the assumptions of our infection estimator. 
 
 It should be noted that although the shaded region around
-the mean number of daily or cumulative infections in Figure 5 *looks* like a confidence band, it would only be valid to consider
+the mean number of daily or cumulative infections in Figure 6 *looks* like a confidence band, it would only be valid to consider
 it as such if our high and low values of the IFR through time represent a confidence interval around the true infection-fatality-ratio
 (and, even then, this confidence interval would only take into account one source of uncertainty about the true daily case numbers - the
 IFR).
@@ -288,9 +305,9 @@ sources](https://www.mlive.com/public-interest/2020/12/covid-19-numbers-in-michi
 dynamics in different states to one public health intervention or another. This attribution *may* be valid, but is often confounded by 
 different infection dynamics through time in the different states being compared. 
 
-The following graph (Figure 6) shows a comparison of daily deaths and estimated infections in Michigan and Ohio.
+The following graph (Figure 7) shows a comparison of daily deaths and estimated infections in Michigan and Ohio.
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 6**: Daily confirmed COVID-19 deaths (a) or estimated infections (b) in the U.S. states of Michigan vs. Ohio."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 7**: Daily confirmed COVID-19 deaths (a) or estimated infections (b) in the U.S. states of Michigan vs. Ohio."}
 par(lwd=2)
 compare.infections(data=Data,
 	state=c("Michigan","Ohio"),
@@ -303,13 +320,16 @@ compare.infections(data=Data,
 This plotting method shares all the assumptions of our infection estimator, and (just like our method for visualizing the geographic 
 dynamics of the pandemic across *all* U.S. states) requires that we use the same IFR model for each state.
 
+Since the daily and cumulative number of infections scales with population size, valid state-to-state comparisons really only make sense
+if done on a per-capita basis (e.g., infections / 1M population), as shown in Figure 7.
+
 ## Visualizing the number of COVID-19 deaths by age
 
 In addition to modeling the number of infections through time, the *covid19.Explorer* [R 
 package](https://github.com/liamrevell/covid19.Explorer/) and [website](http://covid19-explorer.org) also allow users to visualize the 
-distribution of COVID-19 deaths by age & sex (Figure 7).
+distribution of COVID-19 deaths by age & sex (Figure 8).
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 7**: a) Weekly confirmed COVID-19 deaths subdivided by age. b) Weekly COVID deaths (red) and deaths by other causes (blue) for all ages."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 8**: a) Weekly confirmed COVID-19 deaths subdivided by age. b) Weekly COVID deaths (red) and deaths by other causes (blue) for all ages."}
 covid.deaths(data=Data,
 	plot="bar",
 	las=1,cex.axis=0.8,cex.lab=0.9)
@@ -334,9 +354,9 @@ knitr::kable(Ages,
 
 <br>
 This permits us to (for example) demonstrate the COVID-19 is not an important source of death for U.S. people under the age of 15, accounting
-for only about 0.4% of all deaths (Figure 8).
+for only about 0.4% of all deaths (Figure 9).
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 8**: a) Cumulative confirmed COVID-19 deaths for children <15. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 9**: a) Cumulative confirmed COVID-19 deaths for children <15. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
 covid.deaths(age.group=c("Under 1 year","1-4 years","5-14 years"),
 	data=Data,
 	plot="smooth",
@@ -346,22 +366,26 @@ covid.deaths(age.group=c("Under 1 year","1-4 years","5-14 years"),
 	las=1,cex.axis=0.8,cex.lab=0.9)
 ```
 
-By contrast, COVID-19 accounts for >10% of all deaths of U.S. persons aged &ge;75 years of age (Figure 9).
+By contrast, COVID-19 accounts for >10% of all deaths of U.S. persons aged &ge;75 years of age (Figure 10).
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 9**: a) Cumulative confirmed COVID-19 deaths for U.S. adults 75 years of age and older. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 10**: a) Cumulative confirmed COVID-19 deaths for U.S. adults 75 years of age and older. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
 covid.deaths(age.group=c("75-84 years", "85 years and over"),
 	data=Data,
 	plot="smooth",
-	show="per.capita",
+	show="percent",
 	cumulative=TRUE,
 	split.groups=FALSE,
 	las=1,cex.axis=0.8,cex.lab=0.9)
 ```
 
+Note the difference between the axes of Figure 9 and Figure 10. In the former deaths are shown per 1M population, whereas the latter reports 
+COVID-19 deaths as a fraction of all deaths. Both types of visualization can be used for data subdivided by age group.
+
 ## Excess mortality analysis
 
 Lastly, the the *covid19.Explorer* [R package](https://github.com/liamrevell/covid19.Explorer/) and 
-[website](http://covid19-explorer.org) allows users to explore excess mortality by age and state, regardless of cause.
+[website](http://covid19-explorer.org) allows users to explore [excess mortality](https://en.wikipedia.org/wiki/Mortality_displacement)
+(also called *mortality displacement*) by age and state, regardless of cause.
 
 For this analysis, we used the [2014-2018 weekly counts of deaths by state and select 
 causes](https://data.cdc.gov/NCHS/Weekly-Counts-of-Deaths-by-State-and-Select-Causes/3yf8-kanr) and the [2019-2020 provisional death 
@@ -462,18 +486,18 @@ knitr::kable(round(PercentAbove,1),
 ```
 
 <br>
-Figure 10 shows the weekly and cumulative percent deaths above normal for the U.S. state of Michigan.
+Figure 11 shows the weekly and cumulative percent deaths above normal for the U.S. state of Michigan.
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 10**: Weekly (a) and cumulative (b) % deaths above normal for the U.S. state of Michigan."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 11**: Weekly (a) and cumulative (b) % deaths above normal for the U.S. state of Michigan."}
 state.deaths(state="Michigan",data=Data,
 	las=1,cex.axis=0.8,plot="percent above normal")
 ```
 
 We calculated deaths above normal by *age* in exactly the same way, but in this case since we lacked detailed demographic information by
-state (i.e., age-stratified population sizes), we show *only* excess deaths and percent deaths above normal. Figure 11 gives an example for
+state (i.e., age-stratified population sizes), we show *only* excess deaths and percent deaths above normal. Figure 12 gives an example for
 persons aged 25-44 from the U.S. state of Florida.
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 11**: Weekly (a) and cumulative percent (b) deaths above normal for adults aged 25-44 in Florida during 2020."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 12**: Weekly (a) and cumulative percent (b) deaths above normal for adults aged 25-44 in Florida during 2020."}
 age.deaths(state="Florida",
 	age.group="25-44 years",
 	data=Data,
