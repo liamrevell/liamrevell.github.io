@@ -5,6 +5,8 @@ output: html_document
 
 [&larr; back to to covid19-explorer.org](http://covid19-explorer.org/)
 
+## Preamble
+
 This document contains a detailed methodology for the R package 
 [*covid19.Explorer*](https://github.com/liamrevell/covid19.Explorer/) and *shiny*-based website 
 [covid19-explorer.org](http://covid19-explorer.org).
@@ -19,6 +21,33 @@ Unfortunately, at this time we can only offer detailed analysis of United States
 be to our great interest to compare not only U.S. states & jurisdictions, but also foreign countries; however, the wide 
 variety of different ways in which these data are recorded and reported, as well as variation in data quality between countries,
 make this endeavor entirely beyond the scope of our project here.
+
+### Using this page
+
+The purpose of this project is help users better understand the 2020 [COVID-19 pandemic](https://en.wikipedia.org/wiki/COVID-19_pandemic) 
+in the United States. Users from other countries might also be interested in the project, for instance because the age distribution of 
+mortality has been [broadly similar](https://doi.org/10.1038/s41598-020-73777-8) among different countries.
+
+This project features two main types of application.
+
+The first of these (exemplified by the *U.S. COVID-19 infections*, *State comparison*, *Plausible range*, and *Infection estimator* tabs)
+consist of applications that are designed to *estimate* the true number of COVID-19 infections over the course of the pandemic. For
+reasons that we elaborate below, confirmed COVID-19 cases underestimate the true number of infections, in most cases by a substantial
+margin. Since there are a variety of reasons that the true number of infections, rather than simply the number of confirmed cases, would
+be of interest, these applications are designed to help users apply a model to estimate the daily number of new infections, the plausible
+range of new infections, the cumulative number of infections, or the daily or cumulative infections per 1M population.
+
+Each of these applications uses a model - but it is one that must be parameterized by the user. We parameterize the model by specifying a
+value or set of values for the [infection fatality ratio](https://en.wikipedia.org/wiki/Case_fatality_rate#Infection_fatality_rate) of
+COVID-19, as well as an average lag time from infection to death. The default values for these model parameters are set to be fairly
+reasonable, but users are encouraged to apply multiple values and examine the sensitivity of their results. In fact, this is one of the 
+main purposes of the project!
+
+The second type of application (examplified by the tabs *Deaths by age*, *Excess mortality by age*, and *By state*) do not employ
+a model and exist primarily to permit the user to interact with COVID-19 death and 2020 excess mortality data, to understand the 
+implications of these data, and to generate interesting or useful data visualization.
+
+Detailed methodology for each type of analysis in this project is given in the sections below.
 
 ## Estimating infections
 
