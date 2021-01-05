@@ -255,7 +255,7 @@ progression of infection more apparent in the graph. The results can be seen in 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=8, units="in", dpi=150, fig.cap="**Figure 5**: Cumulative estimated infections separated by state."}
 infections.by.state(data=Data,
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
-	las=1,cex.axis=0.8,cex.lab=0.9,span=0.15)
+	las=1,cex.axis=0.8,cex.lab=0.9,span=0.22)
 ```
 	
 ### Assumptions of the method
