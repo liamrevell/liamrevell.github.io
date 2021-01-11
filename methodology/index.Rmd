@@ -9,7 +9,7 @@ output: html_document
 
 This document contains a detailed methodology for the R package 
 [*covid19.Explorer*](https://github.com/liamrevell/covid19.Explorer/) and *shiny*-based website 
-[covid19-explorer.org](http://covid19-explorer.org).
+[covid19-explorer.org](https://covid19-explorer.org).
 
 In this package & web application we estimate total infections (from deaths & confirmed cases), graph the distribution
 of infections over time among U.S. states, visualize COVID-19 deaths by age & by sex (as well as compared to deaths from all causes),
@@ -32,18 +32,18 @@ This project features two main types of web application.
 
 The first of these (exemplified by the *U.S. COVID-19 infections*, *State comparison*, *Plausible range*, and *Infection estimator* tabs)
 consists of applications that are designed to *estimate* the true number of COVID-19 infections over the course of the pandemic. For
-reasons that we elaborate below, confirmed COVID-19 cases underestimate the true number of infections, in most cases by a substantial
+reasons that we elaborate below, confirmed COVID-19 cases underestimate the true number of infections, usually by a substantial
 margin. Since there are a variety of reasons that the *true* number of infections (rather than simply the number of confirmed cases) is
 of interest, these applications are designed to help users apply a model to estimate the daily number of new infections, the plausible
 range of new infections, the cumulative number of infections, or the daily or cumulative infections as a percentage or per 1M population.
 
-Each of these applications uses a model - but it's one that must be *parameterized* by the user. Users parameterize the model by specifying a
+Each of these applications uses a model - but it's one that needs to be *parameterized* by the user. Users parameterize the model by specifying a
 value or set of values for the [infection fatality ratio](https://en.wikipedia.org/wiki/Case_fatality_rate#Infection_fatality_rate) of
 COVID-19, as well as an average lag time from infection to death. The values for each of these model parameters have been set to default to fairly
-reasonable numbers, as detailed in the sections below, but users are nonetheless strongly encouraged to apply multiple values and examine the 
+reasonable numbers, as detailed in the sections below; however, users are nonetheless strongly encouraged to apply multiple values and examine the 
 sensitivity of their results. In fact, this is one of the main purposes of the project!
 
-The second type of application (examplified by the tabs *Deaths by age*, *Excess mortality by age*, and *By state*) do not employ
+The second type of application (exemplified by the tabs *Deaths by age*, *Excess mortality by age*, and *By state*) do not employ
 a model and exist primarily to permit the user to interact with CDC COVID-19 death and 2020 excess mortality data, to understand the 
 implications of these data, and to generate interesting or useful data visualizations.
 
@@ -55,9 +55,10 @@ Since the beginning of this pandemic, it's been [widely understood](https://doi.
 confirmed COVID-19 cases underestimate the true number of infections, sometimes by a [very large 
 margin](https://www.cdc.gov/library/covid19/092220_covidupdate.html).
 
-This is likely due to multiple factors. One is limited testing capacity at the start of the epidemic. A second is the fact
-that testing is voluntary, and many cases of SARS-CoV-2 infection present 
-[asymptotically](https://doi.org/10.1038/d41586-020-03141-3) or with mild symptoms.
+This is likely due to multiple factors. One factor is that there has been limited testing capacity throughout the COVID-19 pandemic in 
+the United States, but particularly when the pandemic was in its earliest days. A second significant factor affecting the disconnect
+between observed cases and true infections is the fact that testing is voluntary, population surveillance testing rare, and many cases of 
+SARS-CoV-2 infection present [asymptotically](https://doi.org/10.1038/d41586-020-03141-3) or with mild symptoms.
 
 As such, we consider confirmed COVID-19 *deaths* to be a much more reliable indicator of disease burden than confirmed
 cases; however, deaths are a *lagging indicator* of infections.
@@ -68,10 +69,10 @@ observed COVID-19 deaths on day *i* + *k* and then dividing this quantity by the
 given 50 COVID-19 deaths on day *i* + *k*, and an IFR of 0.5%, we would predict that 10,000 new SARS-CoV-2 infections had occurred 
 on day *i*.
 
-Both *k*, the average lag time from infection to death (in cases of SARS-CoV-2 infections resulting in death), and IFR are to be
+Both *k*, the average lag time from infection to death (in cases of SARS-CoV-2 infections resulting in death), and the IFR are to be
 specified by the user. 
 
-A reasonable lag time between infection & death is approximately three weeks. For example, during a large outbreak in 
+A fairly reasonable lag time between infection & death is approximately three weeks. For example, during a large outbreak in 
 [Melbourne, Australia](https://www.worldometers.info/coronavirus/country/australia/) the time difference between the peak 
 recorded cases and peak confirmed COVID-19 deaths was ~17 days. (Infected persons normally test negative for the first few days 
 following infection, so this more or less corresponds with a lag-time of three weeks.)
@@ -81,10 +82,13 @@ Likewise, IFR values ranging from about 0.3% to >1.0% have been reported over th
 For instance, [a study 
 based on an early, super-spreader event in Germany](https://doi.org/10.1038/s41467-020-19509-y) estimated an IFR (corrected to 
 the demographic distribution of the local population) of 0.36%. Other studies have reported higher estimated IFR. For example, 
-an [Italian study](https://doi.org/10.1101/2020.04.18.20070912) estimated an overall infection fatality rate of 1.31%. In 
-general, it's reasonable to suppose that IFR has [fallen through time](https://doi.org/10.1038/d41586-020-03132-4) as treatment 
+an [Italian study](https://doi.org/10.1101/2020.04.18.20070912) estimated an overall infection fatality rate of 1.31%. 
+
+In general, it's reasonable to suppose that IFR has [fallen through time](https://doi.org/10.1038/d41586-020-03132-4) as treatment 
 of severely ill patients has improved. Likewise, even within the U.S., IFR is unlikely to be the same at a given date in different 
-jurisdictions, due to differences in demographic structure between areas. We think it is reasonable to suppose an IFR no greater 
+jurisdictions, due to differences in demographic structure between areas. 
+
+We think it is reasonable to suppose an IFR no greater 
 than 1.0% and declining from the start of the pandemic towards the present, with a current IFR of around 0.3%. We permit the user 
 to specify a time-varying IFR by fixing the IFR at each quarter and then interpolating daily IFR between each quarter using [local 
 regression smoothing](https://en.wikipedia.org/wiki/Local_regression) (LOESS).
@@ -100,15 +104,21 @@ The approach of using *only* confirmed COVID-19 deaths - though robust - does no
 infections between now - *k* days and the present. For this, we assumed a [sigmoidal](https://en.wikipedia.org/wiki/Sigmoid_function) 
 relationship between time and the ratio of confirmed cases over the true number of infections. 
 
-Since the true number of new infections cannot exceed the number of confirmed cases, logic dictates that this ratio must have a value between 0 and 1. 
+Since the true number of new infections cannot exceed the number of confirmed cases, logic dictates that this ratio must have a value between 0 
+and 1. 
+
 We decided on a sigmoidal relationship because we assume the ratio was low early in the pandemic when confirming a new infection was 
 limited primarily by testing capacity, but has probably risen (in many localities) to a more or less consistent value as test 
 capacity increased. Since getting tested is voluntary, and since many infections of SARS-CoV-2 are asymptomatic or only mildly 
 symptomatic, it is unlikely to rise to near 1.0 in the U.S. regardless of testing. 
 
-Figure 1 below shows daily estimated infections (under our model) / confirmed cases for all U.S. data over the entire course of the pandemic. Although the 
-fit of the sigmoid function is relatively good, readers might note that the fitted curve *overestimates* the ratio of confirmed cases / 
-infections near the start of the pandemic (i.e., to the left-hand side of the plot). This is not particularly worrisome because the most 
+Figure 1 below shows daily estimated infections (under our model) / confirmed cases for all U.S. data over the entire course of the pandemic
+to date. 
+
+Although the 
+fit of the sigmoid function is relatively good, readers might note that the fitted curve seems to *overestimate* the ratio of 
+infections / confirmed cases infections near the start of the pandemic (i.e., to the left-hand side of the plot). This is not particularly 
+worrisome because the most 
 important part of the graph is the *right* side - since this is the part that will be use to extrapolate recent infection numbers from 
 observed cases.
 
@@ -185,7 +195,7 @@ infection.estimator(data=Data,
 	cumulative=TRUE,percent=TRUE)
 ```
 
-This plot suggests that perhaps around 17% of the population in Texas has already been infected; however, users should keep in mind that 
+Though plot suggests that perhaps around 20% of the population in Texas has already been infected, users should keep in mind that 
 this is entirely dependent on how we *decided* to model IFR through time. To see this, let's take the same state (Texas) and imagine 
 (perhaps relatively naively) a *constant* IFR of 0.5%, rather than one that declines through time.
 
@@ -196,6 +206,8 @@ infection.estimator(data=Data,
 	las=1,cex.axis=0.8,cex.lab=0.9,
 	cumulative=TRUE,percent=TRUE)
 ```
+
+We can see from Figure 4 that for a lower *assumed* IFR, a larger number of daily & cumulative infections are implied.
 
 ### Assumptions of the method
 
@@ -238,6 +250,8 @@ assumption that seems to hold fairly well across the entire U.S. (Figure 1) and 
 It's equally plausible to suspect that this ratio could shift not only as a function of time, but also as demands on testing 
 capacity rise and fall with case numbers. This should be the subject of additional study, but our suspicion is that this would not 
 be likely to have a large effect on our model compared to other simplifications.
+
+Finally we assume no or limited *reporting delay*. This is obviously incorrect. There are two main sources of reporting delay: the delay between when an individual is infected and when the test positive for SARS-CoV-2; and the delay between when an infected patient dies and their death is reported to the CDC. Given this delay in reporting, a more precise *interpretation* of the estimated number of daily infections, is a (rough) estimate of the number of new individuals who would test positive for SARS-CoV-2 under a hypothetical scenario of universal testing.
 
 ## Mapping the distribution of infections across states
 
@@ -366,7 +380,7 @@ covid.deaths(age.group=c("Under 1 year","1-4 years","5-14 years"),
 	las=1,cex.axis=0.8,cex.lab=0.9)
 ```
 
-By contrast, COVID-19 accounts for >10% of all deaths of U.S. persons aged &ge;75 years of age (Figure 10).
+By contrast, COVID-19 accounts for nearly 12% of all deaths of U.S. persons aged &ge;75 years of age (Figure 10).
 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 10**: a) Cumulative confirmed COVID-19 deaths for U.S. adults 75 years of age and older. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
 covid.deaths(age.group=c("75-84 years", "85 years and over"),
