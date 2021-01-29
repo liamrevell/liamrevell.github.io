@@ -30,12 +30,13 @@ mortality has been [broadly similar](https://doi.org/10.1038/s41598-020-73777-8)
 
 This project features two main types of web application.
 
-The first of these (exemplified by the *U.S. COVID-19 infections*, *State comparison*, *Plausible range*, and *Infection estimator* tabs)
-consists of applications that are designed to *estimate* the true number of COVID-19 infections over the course of the pandemic. For
-reasons that we elaborate below, confirmed COVID-19 cases underestimate the true number of infections, usually by a substantial
-margin. Since there are a variety of reasons that the *true* number of infections (rather than simply the number of confirmed cases) is
-of interest, these applications are designed to help users apply a model to estimate the daily number of new infections, the plausible
-range of new infections, the cumulative number of infections, or the daily or cumulative infections as a percentage or per 1M population.
+The first of these (exemplified by the *U.S. COVID-19 infections*, *Iceberg plot*, *State comparison*, *Plausible range*, and 
+*Infection estimator* tabs) consists of applications that are designed to *estimate* the true number of COVID-19 infections over the 
+course of the pandemic. For reasons that we elaborate below, confirmed COVID-19 cases underestimate the true number of infections, 
+usually by a substantial margin. Since there are a variety of reasons that the *true* number of infections (rather than simply the 
+number of confirmed cases) is of interest, these applications are designed to help users apply a model to estimate the daily number of 
+new infections, the plausible range of new infections, the cumulative number of infections, or the daily or cumulative infections as a 
+percentage or per 1M population.
 
 Each of these applications uses a model - but it's one that needs to be *parameterized* by the user. Users parameterize the model by specifying a
 value or set of values for the [infection fatality ratio](https://en.wikipedia.org/wiki/Case_fatality_rate#Infection_fatality_rate) of
@@ -253,6 +254,28 @@ be likely to have a large effect on our model compared to other simplifications.
 
 Finally we assume no or limited *reporting delay*. This is obviously incorrect. There are two main sources of reporting delay: the delay between when an individual is infected and when the test positive for SARS-CoV-2; and the delay between when an infected patient dies and their death is reported to the CDC. Given this delay in reporting, a more precise *interpretation* of the estimated number of daily infections, is a (rough) estimate of the number of new individuals who would test positive for SARS-CoV-2 under a hypothetical scenario of universal testing.
 
+## Showing observed and estimated unobserved infections using an 'iceberg plot'
+
+As noted above, it has long been well-understood that the number of daily confirmed COVID-19 cases is an *underestimate* of the
+true number of daily infections, sometimes by a very wide margin.
+
+To visualize this phenomenon, we devised an *iceberg plot* in which we simultaneously graph the number of observed COVID-19 infections
+(above the 'waterline' of the graph) and the estimated number of unobserved infections (below it).
+
+Figure 5 gives this analysis for the U.S. state of Washington, in which we assumed the same IFR model through time as was used for
+Figures 1, 2, and 3. Daily observed cases are smoothed using a 3-day moving average.
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=8, units="in", dpi=150, fig.cap="**Figure 5**: Iceberg plot showing the confirmed daily new infections (above the waterline) and estimated unobserved infections (below it) for the U.S. state of Washington."}
+iceberg.plot(data=Data,
+	state="Washington",
+	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
+	las=1,cex.axis=0.8,cex.lab=0.9,span=0.2,window=3)
+```
+
+### Assumptions of the method
+
+This method has exactly the same assumptions as we used in estimating infections, above.
+
 ## Mapping the distribution of infections across states
 
 A hallmark feature of the U.S. COVID-19 pandemic has been the shifting geographic distribution of infections through time
@@ -264,12 +287,12 @@ model (outlined above), separated by state.
 We specifically selected a geographic color palette for this analysis such that 
 [RGB](https://en.wikipedia.org/wiki/RGB_color_model) color values were made to vary as a function of latitude, longitude, and 
 (arbitrarily) geographic distance from Florida. This is intended to have the effect of making the regional geographic
-progression of infection more apparent in the graph. The results can be seen in Figure 5.
+progression of infection more apparent in the graph. The results can be seen in Figure 6.
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=8, units="in", dpi=150, fig.cap="**Figure 5**: Cumulative estimated infections separated by state."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=8, units="in", dpi=150, fig.cap="**Figure 6**: Daily estimated infections separated by state."}
 infections.by.state(data=Data,
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
-	las=1,cex.axis=0.8,cex.lab=0.9,span=0.22)
+	las=1,cex.axis=0.8,cex.lab=0.9,span=0.2)
 ```
 	
 ### Assumptions of the method
@@ -290,9 +313,9 @@ different values of IFR. This is valuable, because the question of the IFR for C
 
 This model can be design to accomodate an assumption of broad uncertainty in IFR early during the pandemic, with both decreasing
 IFR, as well as falling uncertainty in IFR, towards the present. This is illustrated for data from the U.S. state of Louisiana in 
-Figure 6.
+Figure 7.
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 6**: a) Confirmed COVID-19 deaths. b) A corresponding plausible range of daily COVID-19 infections, under our model."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 7**: a) Confirmed COVID-19 deaths. b) A corresponding plausible range of daily COVID-19 infections, under our model."}
 infection.range.estimator(state="Louisiana",
 	data=Data,
 	ifr.low=c(0.008,0.006,0.005,0.004,0.004,0.004),
@@ -305,7 +328,7 @@ infection.range.estimator(state="Louisiana",
 This plotting method shares all the assumptions of our infection estimator. 
 
 It should be noted that although the shaded region around
-the mean number of daily or cumulative infections in Figure 6 *looks* like a confidence band, it would only be valid to consider
+the mean number of daily or cumulative infections in Figure 7 *looks* like a confidence band, it would only be valid to consider
 it as such if our high and low values of the IFR through time represent a confidence interval around the true infection-fatality-ratio
 (and, even then, this confidence interval would only take into account one source of uncertainty about the true daily case numbers - the
 IFR).
@@ -319,9 +342,9 @@ sources](https://www.mlive.com/public-interest/2020/12/covid-19-numbers-in-michi
 dynamics in different states to one public health intervention or another. This attribution *may* be valid, but is often confounded by 
 different infection dynamics through time in the different states being compared. 
 
-The following graph (Figure 7) shows a comparison of daily deaths and estimated infections in Michigan and Ohio.
+The following graph (Figure 8) shows a comparison of daily deaths and estimated infections in Michigan and Ohio.
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 7**: Daily confirmed COVID-19 deaths (a) or estimated infections (b) in the U.S. states of Michigan vs. Ohio."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 8**: Daily confirmed COVID-19 deaths (a) or estimated infections (b) in the U.S. states of Michigan vs. Ohio."}
 par(lwd=2)
 compare.infections(data=Data,
 	state=c("Michigan","Ohio"),
@@ -335,15 +358,15 @@ This plotting method shares all the assumptions of our infection estimator, and 
 dynamics of the pandemic across *all* U.S. states) requires that we use the same IFR model for each state.
 
 Since the daily and cumulative number of infections scales with population size, valid state-to-state comparisons really only make sense
-if done on a per-capita basis (e.g., infections / 1M population), as shown in Figure 7.
+if done on a per-capita basis (e.g., infections / 1M population), as shown in Figure 8.
 
 ## Visualizing the number of COVID-19 deaths by age
 
 In addition to modeling the number of infections through time, the *covid19.Explorer* [R 
 package](https://github.com/liamrevell/covid19.Explorer/) and [website](http://covid19-explorer.org) also allow users to visualize the 
-distribution of COVID-19 deaths by age & sex (Figure 8).
+distribution of COVID-19 deaths by age & sex (Figure 9).
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 8**: a) Weekly confirmed COVID-19 deaths subdivided by age. b) Weekly COVID deaths (red) and deaths by other causes (blue) for all ages."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 9**: a) Weekly confirmed COVID-19 deaths subdivided by age. b) Weekly COVID deaths (red) and deaths by other causes (blue) for all ages."}
 covid.deaths(data=Data,
 	plot="bar",
 	las=1,cex.axis=0.8,cex.lab=0.9)
@@ -368,9 +391,9 @@ knitr::kable(Ages,
 
 <br>
 This permits us to (for example) demonstrate the COVID-19 is not an important source of death for U.S. people under the age of 15, accounting
-for only about 0.4% of all deaths (Figure 9).
+for only about 0.4% of all deaths (Figure 10).
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 9**: a) Cumulative confirmed COVID-19 deaths for children <15. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 10**: a) Cumulative confirmed COVID-19 deaths for children <15. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
 covid.deaths(age.group=c("Under 1 year","1-4 years","5-14 years"),
 	data=Data,
 	plot="smooth",
@@ -380,9 +403,9 @@ covid.deaths(age.group=c("Under 1 year","1-4 years","5-14 years"),
 	las=1,cex.axis=0.8,cex.lab=0.9)
 ```
 
-By contrast, COVID-19 accounts for nearly 12% of all deaths of U.S. persons aged &ge;75 years of age (Figure 10).
+By contrast, COVID-19 accounts for nearly 12% of all deaths of U.S. persons aged &ge;75 years of age (Figure 11).
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 10**: a) Cumulative confirmed COVID-19 deaths for U.S. adults 75 years of age and older. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 11**: a) Cumulative confirmed COVID-19 deaths for U.S. adults 75 years of age and older. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
 covid.deaths(age.group=c("75-84 years", "85 years and over"),
 	data=Data,
 	plot="smooth",
@@ -392,7 +415,7 @@ covid.deaths(age.group=c("75-84 years", "85 years and over"),
 	las=1,cex.axis=0.8,cex.lab=0.9)
 ```
 
-Note the difference between the axes of Figure 9 and Figure 10. In the former deaths are shown per 1M population, whereas the latter reports 
+Note the difference between the axes of Figure 10 and Figure 11. In the former deaths are shown per 1M population, whereas the latter reports 
 COVID-19 deaths as a fraction of all deaths. Both types of visualization can be used for data subdivided by age group.
 
 ## Excess mortality analysis
@@ -500,18 +523,18 @@ knitr::kable(round(PercentAbove,1),
 ```
 
 <br>
-Figure 11 shows the weekly and cumulative percent deaths above normal for the U.S. state of Michigan.
+Figure 12 shows the weekly and cumulative percent deaths above normal for the U.S. state of Michigan.
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 11**: Weekly (a) and cumulative (b) % deaths above normal for the U.S. state of Michigan."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 12**: Weekly (a) and cumulative (b) % deaths above normal for the U.S. state of Michigan."}
 state.deaths(state="Michigan",data=Data,
 	las=1,cex.axis=0.8,plot="percent above normal")
 ```
 
 We calculated deaths above normal by *age* in exactly the same way, but in this case since we lacked detailed demographic information by
-state (i.e., age-stratified population sizes), we show *only* excess deaths and percent deaths above normal. Figure 12 gives an example for
+state (i.e., age-stratified population sizes), we show *only* excess deaths and percent deaths above normal. Figure 13 gives an example for
 persons aged 25-44 from the U.S. state of Florida.
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 12**: Weekly (a) and cumulative percent (b) deaths above normal for adults aged 25-44 in Florida during 2020."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 13**: Weekly (a) and cumulative percent (b) deaths above normal for adults aged 25-44 in Florida during 2020."}
 age.deaths(state="Florida",
 	age.group="25-44 years",
 	data=Data,
