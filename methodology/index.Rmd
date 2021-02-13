@@ -142,11 +142,11 @@ After fitting this sigmoidal curve to our observed and estimated cases through n
 To obtain estimated infections for these days, we simply divide our observed cases from the last *k* days of data by our fitted values from the 
 sigmoid curve.
 
-Figure 2 shows the result of this analysis applied to data for the U.S. state of California.
+Figure 2 shows the result of this analysis applied to data for the U.S. state of Massachusetts.
 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 2**: a) Observed daily COVID-19 deaths and an assumed model of IFR in which the infection fatality ratio is initially high (~1.5%), but then declines and stabilizes at around 0.6% through the present day. b) Estimated daily infections (green), cases (blue), and deaths (red)."}
 infection.estimator(data=Data,
-	state="California",
+	state="Massachusetts",
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
 	las=1,cex.axis=0.8,cex.lab=0.9)
 ```
