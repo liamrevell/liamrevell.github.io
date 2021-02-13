@@ -196,7 +196,7 @@ infection.estimator(data=Data,
 	cumulative=TRUE,percent=TRUE)
 ```
 
-Though plot suggests that perhaps around 20% of the population in Texas has already been infected, users should keep in mind that 
+Though plot suggests that perhaps around 25% of the population in Texas has already been infected, users should keep in mind that 
 this is entirely dependent on how we *decided* to model IFR through time. To see this, let's take the same state (Texas) and imagine 
 (perhaps relatively naively) a *constant* IFR of 0.5%, rather than one that declines through time.
 
@@ -342,14 +342,14 @@ sources](https://www.mlive.com/public-interest/2020/12/covid-19-numbers-in-michi
 dynamics in different states to one public health intervention or another. This attribution *may* be valid, but is often confounded by 
 different infection dynamics through time in the different states being compared. 
 
-The following graph (Figure 8) shows a comparison of daily deaths and estimated infections in Michigan and Ohio.
+The following graph (Figure 8) shows a comparison of cumulative deaths and estimated infections in California and Florida.
 
-```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 8**: Daily confirmed COVID-19 deaths (a) or estimated infections (b) in the U.S. states of Michigan vs. Ohio."}
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 8**: Daily confirmed COVID-19 deaths (a) or estimated infections (b) in the U.S. states of California vs. Florida."}
 par(lwd=2)
 compare.infections(data=Data,
-	state=c("Michigan","Ohio"),
+	state=c("California","Florida"),
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
-	las=1,cex.axis=0.8,cex.lab=0.9)
+	las=1,cex.axis=0.8,cex.lab=0.9,cumulative=TRUE)
 ```
 
 ### Assumptions of this method
