@@ -9,7 +9,11 @@ output: html_document
 
 This document contains a detailed methodology for the R package 
 [*covid19.Explorer*](https://github.com/liamrevell/covid19.Explorer/) and *shiny*-based website 
-[covid19-explorer.org](https://covid19-explorer.org).
+[covid19-explorer.org](https://covid19-explorer.org). For more details, please check out the following pre-print on
+*medRxiv*: 
+
+Revell, L. J. *covid19.Explorer*: A web application and R package to explore United States COVID-19 data. 
+*medRxiv* pre-print doi: [https://doi.org/10.1101/2021.02.15.21251782](https://doi.org/10.1101/2021.02.15.21251782).
 
 In this package & web application we estimate total infections (from deaths & confirmed cases), graph the distribution
 of infections over time among U.S. states, visualize COVID-19 deaths by age & by sex (as well as compared to deaths from all causes),
@@ -66,8 +70,8 @@ cases; however, deaths are a *lagging indicator* of infections.
 
 Consequently, we chose to use a model in which the number of new infections on day *i* was estimated by taking the number of 
 observed COVID-19 deaths on day *i* + *k* and then dividing this quantity by the 
-[infection fatality ratio](https://en.wikipedia.org/wiki/Case_fatality_rate#Infection_fatality_rate) (also called the infection fatality *rate* or IFR). In other words,
-given 50 COVID-19 deaths on day *i* + *k*, and an IFR of 0.5%, we would predict that 10,000 new SARS-CoV-2 infections had occurred 
+[infection fatality ratio](https://en.wikipedia.org/wiki/Case_fatality_rate#Infection_fatality_rate) (also called the infection fatality *rate* or IFR). 
+In other words, given 50 COVID-19 deaths on day *i* + *k*, and an IFR of 0.5%, we would predict that 10,000 new SARS-CoV-2 infections had occurred 
 on day *i*.
 
 Both *k*, the average lag time from infection to death (in cases of SARS-CoV-2 infections resulting in death), and the IFR are to be
@@ -148,6 +152,7 @@ Figure 2 shows the result of this analysis applied to data for the U.S. state of
 infection.estimator(data=Data,
 	state="Massachusetts",
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
+	span=c(0.15,0.3),
 	las=1,cex.axis=0.8,cex.lab=0.9)
 ```
 
@@ -193,10 +198,11 @@ infection.estimator(data=Data,
 	state="Texas",
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
 	las=1,cex.axis=0.8,cex.lab=0.9,
+	span=c(0.15,0.3),
 	cumulative=TRUE,percent=TRUE)
 ```
 
-Though plot suggests that perhaps around 25% of the population in Texas has already been infected, users should keep in mind that 
+Though plot suggests that perhaps around 25-30% of the population in Texas has already been infected, users should keep in mind that 
 this is entirely dependent on how we *decided* to model IFR through time. To see this, let's take the same state (Texas) and imagine 
 (perhaps relatively naively) a *constant* IFR of 0.5%, rather than one that declines through time.
 
@@ -205,10 +211,11 @@ infection.estimator(data=Data,
 	state="Texas",
 	ifr=0.005,
 	las=1,cex.axis=0.8,cex.lab=0.9,
+	span=c(0.15,0.3),
 	cumulative=TRUE,percent=TRUE)
 ```
 
-We can see from Figure 4 that for a lower *assumed* IFR, a larger number of daily & cumulative infections are implied.
+We can see from Figure 4 that for a lower *assumed* IFR, a *larger* number of daily & cumulative infections are implied.
 
 ### Assumptions of the method
 
@@ -269,7 +276,8 @@ Figures 1, 2, and 3. Daily observed cases are smoothed using a 3-day moving aver
 iceberg.plot(data=Data,
 	state="Washington",
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
-	las=1,cex.axis=0.8,cex.lab=0.9,span=0.2,window=3)
+	las=1,cex.axis=0.8,cex.lab=0.9,span=c(0.15,0.3),
+	window=3)
 ```
 
 ### Assumptions of the method
@@ -292,7 +300,7 @@ progression of infection more apparent in the graph. The results can be seen in 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=8, units="in", dpi=150, fig.cap="**Figure 6**: Daily estimated infections separated by state."}
 infections.by.state(data=Data,
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
-	las=1,cex.axis=0.8,cex.lab=0.9,span=0.2)
+	las=1,cex.axis=0.8,cex.lab=0.9,span=0.15)
 ```
 	
 ### Assumptions of the method
@@ -349,7 +357,8 @@ par(lwd=2)
 compare.infections(data=Data,
 	state=c("California","Florida"),
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
-	las=1,cex.axis=0.8,cex.lab=0.9,cumulative=TRUE)
+	las=1,cex.axis=0.8,cex.lab=0.9,cumulative=TRUE,
+	span=c(0.15,0.3))
 ```
 
 ### Assumptions of this method
@@ -391,7 +400,7 @@ knitr::kable(Ages,
 
 <br>
 This permits us to (for example) demonstrate the COVID-19 is not an important source of death for U.S. people under the age of 15, accounting
-for only about 0.4% of all deaths (Figure 10).
+for only about 0.5% of all deaths (Figure 10).
 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 10**: a) Cumulative confirmed COVID-19 deaths for children <15. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
 covid.deaths(age.group=c("Under 1 year","1-4 years","5-14 years"),
@@ -403,7 +412,7 @@ covid.deaths(age.group=c("Under 1 year","1-4 years","5-14 years"),
 	las=1,cex.axis=0.8,cex.lab=0.9)
 ```
 
-By contrast, COVID-19 accounts for nearly 12% of all deaths of U.S. persons aged &ge;75 years of age (Figure 11).
+By contrast, COVID-19 accounts for nearly 15% of all deaths of U.S. persons aged &ge;75 years of age (Figure 11).
 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 11**: a) Cumulative confirmed COVID-19 deaths for U.S. adults 75 years of age and older. b) Cumulative COVID deaths (red) and deaths by other causes (blue) for all ages."}
 covid.deaths(age.group=c("75-84 years", "85 years and over"),
@@ -446,7 +455,7 @@ knitr::kable(Deaths,
 ```
 
 <br>
-To *correct* observed deaths in prior years to 2020 levels, we simply multiplied the past-year death tally by the ratio the jurisdiction 
+To *correct* observed deaths in prior years to 2020 levels, we multiplied the past-year death tally by the ratio the jurisdiction 
 population in 2020 compared to the population in the past year.
 
 Table 4 gives an example using the jurisdiction of New Jersey.
@@ -545,7 +554,9 @@ This analysis shows an approximately 30% above normal death rate in 2020 compare
 
 ### Contact & other information
 
-The R package [*covid19.Explorer*](https://github.com/liamrevell/covid19.Explorer/) and the website [covid19-explorer.org](http://covid19-explorer.org) were developed by [Dr. Liam Revell](http://faculty.umb.edu/liam.revell/). Please [contact Liam](mailto:liam.revell@umb.edu) with questions about this page, the [covid19-explorer.org website](http://covid19-explorer.org) or the R package.
+The R package [*covid19.Explorer*](https://github.com/liamrevell/covid19.Explorer/) and the website [covid19-explorer.org](http://covid19-explorer.org) were 
+developed by [Dr. Liam Revell](http://faculty.umb.edu/liam.revell/). Please [contact Liam](mailto:liam.revell@umb.edu) with questions about this page, 
+the [covid19-explorer.org website](http://covid19-explorer.org) or the R package.
 
 <br><br>
 [&larr; back to to covid19-explorer.org](http://covid19-explorer.org/)
