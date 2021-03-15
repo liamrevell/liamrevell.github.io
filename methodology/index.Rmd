@@ -134,7 +134,7 @@ infection.estimator(data=Data,
 	state="United States",
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
 	las=1,cex.axis=0.8,cex.lab=0.9,plot="infection.ratio",
-	window=1)
+	span=c(0.1,0.3),window=1)
 abline(h=seq(0.1,0.6,by=0.1),lty="dotted",col="grey")
 ```
 
@@ -152,7 +152,7 @@ Figure 2 shows the result of this analysis applied to data for the U.S. state of
 infection.estimator(data=Data,
 	state="Massachusetts",
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
-	span=c(0.15,0.3),
+	span=c(0.1,0.3),window=1,
 	las=1,cex.axis=0.8,cex.lab=0.9)
 ```
 
@@ -198,7 +198,7 @@ infection.estimator(data=Data,
 	state="Texas",
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
 	las=1,cex.axis=0.8,cex.lab=0.9,
-	span=c(0.15,0.3),
+	span=c(0.1,0.3),window=1,
 	cumulative=TRUE,percent=TRUE)
 ```
 
@@ -211,7 +211,7 @@ infection.estimator(data=Data,
 	state="Texas",
 	ifr=0.005,
 	las=1,cex.axis=0.8,cex.lab=0.9,
-	span=c(0.15,0.3),
+	span=c(0.1,0.3),window=1,
 	cumulative=TRUE,percent=TRUE)
 ```
 
@@ -276,7 +276,7 @@ Figures 1, 2, and 3. Daily observed cases are smoothed using a 3-day moving aver
 iceberg.plot(data=Data,
 	state="Washington",
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
-	las=1,cex.axis=0.8,cex.lab=0.9,span=c(0.15,0.3),
+	las=1,cex.axis=0.8,cex.lab=0.9,span=c(0.1,0.3),
 	window=3)
 ```
 
@@ -300,7 +300,7 @@ progression of infection more apparent in the graph. The results can be seen in 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=8, units="in", dpi=150, fig.cap="**Figure 6**: Daily estimated infections separated by state."}
 infections.by.state(data=Data,
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
-	las=1,cex.axis=0.8,cex.lab=0.9,span=0.15)
+	las=1,cex.axis=0.8,cex.lab=0.9,span=0.1)
 ```
 	
 ### Assumptions of the method
@@ -328,7 +328,7 @@ infection.range.estimator(state="Louisiana",
 	data=Data,
 	ifr.low=c(0.008,0.006,0.005,0.004,0.004,0.004),
 	ifr.high=c(0.022,0.014,0.009,0.007,0.007,0.007),
-	span=0.15)
+	span=0.1)
 ```
 
 ### Assumptions of this method
@@ -358,7 +358,7 @@ compare.infections(data=Data,
 	state=c("California","Florida"),
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
 	las=1,cex.axis=0.8,cex.lab=0.9,cumulative=TRUE,
-	span=c(0.15,0.3))
+	span=c(0.1,0.3))
 ```
 
 ### Assumptions of this method
