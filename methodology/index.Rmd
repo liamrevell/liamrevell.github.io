@@ -3,7 +3,7 @@ title: "U.S. COVID-19 Explorer Methodology"
 output: html_document
 ---
 
-[&larr; back to to covid19-explorer.org](http://covid19-explorer.org/)
+[&larr; back to to covid19-explorer.org](https://covid19-explorer.org/)
 
 ## Preamble
 
@@ -372,7 +372,7 @@ if done on a per-capita basis (e.g., infections / 1M population), as shown in Fi
 ## Visualizing the number of COVID-19 deaths by age
 
 In addition to modeling the number of infections through time, the *covid19.Explorer* [R 
-package](https://github.com/liamrevell/covid19.Explorer/) and [website](http://covid19-explorer.org) also allow users to visualize the 
+package](https://github.com/liamrevell/covid19.Explorer/) and [website](https://covid19-explorer.org) also allow users to visualize the 
 distribution of COVID-19 deaths by age & sex (Figure 9).
 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 9**: a) Weekly confirmed COVID-19 deaths subdivided by age. b) Weekly COVID deaths (red) and deaths by other causes (blue) for all ages."}
@@ -430,7 +430,7 @@ COVID-19 deaths as a fraction of all deaths. Both types of visualization can be 
 ## Excess mortality analysis
 
 Lastly, the the *covid19.Explorer* [R package](https://github.com/liamrevell/covid19.Explorer/) and 
-[website](http://covid19-explorer.org) allows users to explore [excess mortality](https://en.wikipedia.org/wiki/Mortality_displacement)
+[website](https://covid19-explorer.org) allows users to explore [excess mortality](https://en.wikipedia.org/wiki/Mortality_displacement)
 (also called *mortality displacement*) by age and state, regardless of cause.
 
 For this analysis, we used the [2014-2018 weekly counts of deaths by state and select 
@@ -554,9 +554,9 @@ This analysis shows an approximately 30% above normal death rate in 2020 compare
 
 ### Contact & other information
 
-The R package [*covid19.Explorer*](https://github.com/liamrevell/covid19.Explorer/) and the website [covid19-explorer.org](http://covid19-explorer.org) were 
+The R package [*covid19.Explorer*](https://github.com/liamrevell/covid19.Explorer/) and the website [covid19-explorer.org](https://covid19-explorer.org) were 
 developed by [Dr. Liam Revell](http://faculty.umb.edu/liam.revell/). Please [contact Liam](mailto:liam.revell@umb.edu) with questions about this page, 
-the [covid19-explorer.org website](http://covid19-explorer.org) or the R package.
+the [covid19-explorer.org website](https://covid19-explorer.org) or the R package.
 
 <br><br>
 [&larr; back to to covid19-explorer.org](http://covid19-explorer.org/)
