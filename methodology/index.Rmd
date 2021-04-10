@@ -134,7 +134,7 @@ infection.estimator(data=Data,
 	state="United States",
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
 	las=1,cex.axis=0.8,cex.lab=0.9,plot="infection.ratio",
-	span=c(0.1,0.3),window=1)
+	span=c(0.1,0.3),window=7)
 abline(h=seq(0.1,0.6,by=0.1),lty="dotted",col="grey")
 ```
 
