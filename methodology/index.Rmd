@@ -138,7 +138,7 @@ infection.estimator(data=Data,
 abline(h=seq(0.1,0.6,by=0.1),lty="dotted",col="grey")
 ```
 
-Figure 1 seems to show a ratio of confirmed / estimated infections of about 0.45 at the present; however, the reader should keep in mind 
+Figure 1 seems to show a ratio of confirmed / estimated infections of about 0.4 at the present; however, the reader should keep in mind 
 that in practice this value is estimated *separately* for each jurisdiction that is being analyzed, and as such might be *lower* in some
 states and *higher* in others, even for a constant IFR value or function.
 
@@ -191,24 +191,24 @@ knitr::kable(round(States),
 <br>
 The question of cumulative percent infected is relevant to the (unnecessarily controversial) concept of ['herd 
 immunity'](https://en.wikipedia.org/wiki/Herd_immunity). The following graph (Figure 3) shows estimated infections as a fraction of 
-the total population for the U.S. state of Texas, using the same IFR model as in Figures 1 and 2.
+the total population for the U.S. state of Colorado, using the same IFR model as in Figures 1 and 2.
 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 3**: a) Observed daily COVID-19 deaths and an assumed model of IFR. b) Estimated cumulative infections (green), cases (blue), and deaths (red), as a percentage of the total population of the state."}
 infection.estimator(data=Data,
-	state="Texas",
+	state="Colorado",
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
 	las=1,cex.axis=0.8,cex.lab=0.9,
 	span=c(0.1,0.3),window=1,
 	cumulative=TRUE,percent=TRUE)
 ```
 
-Though plot suggests that perhaps around 25-30% of the population in Texas has already been infected, users should keep in mind that 
-this is entirely dependent on how we *decided* to model IFR through time. To see this, let's take the same state (Texas) and imagine 
+Though plot suggests that perhaps around 12-20% of the population in Colorado has already been infected, users should keep in mind that 
+this is entirely dependent on how we *decided* to model IFR through time. To see this, let's take the same state (Colorado) and imagine 
 (perhaps relatively naively) a *constant* IFR of 0.5%, rather than one that declines through time.
 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=10, units="in", dpi=150, fig.cap="**Figure 4**: The same analysis as Figure 3, but assuming a constant IFR of 0.5%."}
 infection.estimator(data=Data,
-	state="Texas",
+	state="Colorado",
 	ifr=0.005,
 	las=1,cex.axis=0.8,cex.lab=0.9,
 	span=c(0.1,0.3),window=1,
@@ -269,12 +269,12 @@ true number of daily infections, sometimes by a very wide margin.
 To visualize this phenomenon, we devised an *iceberg plot* in which we simultaneously graph the number of observed COVID-19 infections
 (above the 'waterline' of the graph) and the estimated number of unobserved infections (below it).
 
-Figure 5 gives this analysis for the U.S. state of Washington, in which we assumed the same IFR model through time as was used for
+Figure 5 gives this analysis for the U.S. state of New York, in which we assumed the same IFR model through time as was used for
 Figures 1, 2, and 3. Daily observed cases are smoothed using a 3-day moving average.
 
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE, fig.width=12, fig.height=8, units="in", dpi=150, fig.cap="**Figure 5**: Iceberg plot showing the confirmed daily new infections (above the waterline) and estimated unobserved infections (below it) for the U.S. state of Washington."}
 iceberg.plot(data=Data,
-	state="Washington",
+	state="New York",
 	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
 	las=1,cex.axis=0.8,cex.lab=0.9,span=c(0.1,0.3),
 	window=3)
