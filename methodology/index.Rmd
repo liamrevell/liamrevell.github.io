@@ -204,7 +204,7 @@ infection.estimator(data=Data,
 	cumulative=TRUE,percent=TRUE)
 ```
 
-Though plot suggests that perhaps around 12-20% of the population in Colorado has already been infected, users should keep in mind that 
+Though plot suggests that perhaps around 15-20% of the population in Colorado has already been infected, users should keep in mind that 
 this is entirely dependent on how we *decided* to model IFR through time. To see this, let's take the same state (Colorado) and imagine 
 (perhaps relatively naively) a *constant* IFR of 0.5%, rather than one that declines through time.
 
