@@ -1,0 +1,22 @@
+---
+title: "Did 2020 surpass the calamity of the 1918 flu pandemic?"
+output: html_document
+---
+
+```{css, echo=FALSE}
+html, body {
+  margin: 0;
+  height: 100%;
+}
+iframe {
+    position: fixed;
+    background: #000;
+    border: none;
+    top: 0; right: 0;
+    bottom: 0; left: 0;
+    width: 100%;
+    height: 100%;
+}
+```
+
+<iframe src="https://liamrevell.github.io/1918/index.html"></iframe>
