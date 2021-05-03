@@ -14,7 +14,8 @@ states<-c("Alabama","Arizona","Arkansas","California","Colorado",
 obj<-sapply(states,infection.estimator,data=Data,
 	ifr=1,window=7,lag=0,plot=FALSE,smooth=FALSE)
 ii<-grep("New York",colnames(obj))
-dates<-as.Date(rownames(obj))
+dates<-as.Date(rownames(obj))+20
+rownames(obj)<-as.character(dates)
 obj<-cbind(obj[,-ii],rowSums(obj[,ii]))
 colnames(obj)[ncol(obj)]<-"New York"
 pop<-as.matrix(state.deaths(data=Data,plot="States"))[,"2020"]
@@ -24,32 +25,34 @@ pop<-matrix(rep(pop[colnames(obj)],nrow(obj)),nrow(obj),ncol(obj),
 daily<-obj/pop
 cols<-rgb(colorRamp(c("blue","red"))(seq(0,1,length.out=100)),
 	maxColorValue=255)
-nticks<-10
+nticks<-6
 
 png(file="covid19-%03d.png",width=10,height=6,units="in",res=125)
 
+MIN<-0.5
+MAX<-50
 for(i in c(1:nrow(obj),rep(nrow(obj),20))){
 	deaths<-daily[i,]
-	deaths[deaths<=0.1]<-0.1
-	deaths[deaths>100]<-100
+	deaths[deaths<=MIN]<-MIN
+	deaths[deaths>MAX]<-MAX
 	colors=setNames(
-		rgb(colorRamp(c("blue","red"))(log10(deaths*10)/log10(100*10)),
-		maxColorValue=255),
+		rgb(colorRamp(c("blue","red"))(log10(deaths*(1/MIN))/
+		log10(50*(1/MIN))),maxColorValue=255),
 		names(infections))
 	dev.hold()
-	par(mar=c(0.1,0.1,0.1,0.1))
+	par(mar=c(0.1,0.1,0.1,0.1),fg="white",bg="black",col.lab="white")
 	plot(NA,xlim=c(-125,-60),ylim=c(24,50),asp=1.3,
 		xlab="",ylab="",
 		axes=FALSE)
 	for(j in 1:length(colors))
 		maps::map("state",regions=names(colors)[j],
 			fill=TRUE,add=TRUE,
-			col=colors[j],border="white")
+			col=colors[j],border="black")
 	LWD<-diff(par()$usr[1:2])/dev.size("px")[1]
-	Y<-cbind(seq(24,50,length.out=4),
-		seq(24,50,length.out=4))
-	X<-cbind(rep(-63+LWD*10/2,4),
-		rep(-63+LWD*10/2+0.5,4))
+	Y<-cbind(seq(24,50,length.out=nticks),
+		seq(24,50,length.out=nticks))
+	X<-cbind(rep(-63+LWD*10/2,nticks),
+		rep(-63+LWD*10/2+0.5,nticks))
 	for(k in 1:nrow(Y)) lines(X[k,],Y[k,])
 	phytools::add.color.bar(50-24,cols,title="",lims=NULL,
 		digits=2,direction="upwards",subtitle="",lwd=15,
@@ -58,10 +61,11 @@ for(i in c(1:nrow(obj),rep(nrow(obj),20))){
 	text(x=-65,y=37,
 		"daily COVID-19 deaths / 1M (moving average)",
 		srt=90)
-	for(k in 1:4){
-		tt<-c(0.1,1.0,10,">100")
+	for(k in 1:6){
+		tt<-10^(seq(log10(MIN),log10(MAX),length.out=6))
+		tt<-c(round(tt,1)[1:(length(tt)-1)],paste(">",MAX,sep=""))
 		text(x=X[k,2],y=Y[k,2],tt[k],pos=4,
-			cex=if(k==4) 1.2 else 0.7)
+			cex=if(k==nticks) 1.2 else 0.7)
 	}
 	text(x=-118,y=25,
 		rownames(obj)[i],
