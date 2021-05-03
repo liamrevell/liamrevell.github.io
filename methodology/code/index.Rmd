@@ -15,7 +15,7 @@ This document contains a detailed methodology for the R package
 Revell, L. J. *covid19.Explorer*: A web application and R package to explore United States COVID-19 data. 
 *medRxiv* pre-print doi: [https://doi.org/10.1101/2021.02.15.21251782](https://doi.org/10.1101/2021.02.15.21251782).
 
-To see a version of this document with the code chunks *visible*, click [here](code/index.html).
+To see a version of this document with the code chunks *hidden*, click [here](../index.html).
 
 In this package & web application we estimate total infections (from deaths & confirmed cases), graph the distribution
 of infections over time among U.S. states, visualize COVID-19 deaths by age & by sex (as well as compared to deaths from all causes),
