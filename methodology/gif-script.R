@@ -12,7 +12,8 @@ states<-c("Alabama","Arizona","Arkansas","California","Colorado",
 	"Tennessee","Texas","Utah","Vermont","Virginia",
 	"Washington","West Virginia","Wisconsin","Wyoming")
 obj<-sapply(states,infection.estimator,data=Data,
-	ifr=1,window=1,lag=0,plot=FALSE,smooth=FALSE)
+	ifr=c(0.015,0.01,0.007,0.006,0.006,0.006,0.006),
+	plot=FALSE)
 ii<-grep("New York",colnames(obj))
 dates<-as.Date(rownames(obj))
 obj<-cbind(obj[,-ii],rowSums(obj[,ii]))
@@ -29,11 +30,9 @@ nticks<-10
 png(file="covid19-%03d.png",width=10,height=6,units="in",res=125)
 
 for(i in c(1:nrow(obj),rep(nrow(obj),20))){
-	deaths<-daily[i,]
-	deaths[deaths<0]<-0
-	deaths[deaths>100]<-100
+	infections<-daily[i,]
 	colors=setNames(
-		rgb(colorRamp(c("blue","red"))(log10(deaths*100)/log10(100*100)),
+		rgb(colorRamp(c("blue","red"))(infections/max(infections+10)),
 		maxColorValue=255),
 		names(infections))
 	dev.hold()
@@ -57,9 +56,8 @@ for(i in c(1:nrow(obj),rep(nrow(obj),20))){
 		prompt=FALSE)
 	text(x=-65,y=37,"estimated new infections / 1M",srt=90)
 	for(k in 1:nticks){
-		tt<-round(seq(1,25,length.out=nticks))[k]
-		tt[length(tt)]<-">25"
-		text(x=X[k,2],y=Y[k,2],tt,pos=4,
+		text(x=X[k,2],y=Y[k,2],round(seq(0,max(infections+10),
+			length.out=nticks))[k],pos=4,
 			cex=if(k==nticks) 1.2 else 0.7)
 	}
 	text(x=-118,y=25,
