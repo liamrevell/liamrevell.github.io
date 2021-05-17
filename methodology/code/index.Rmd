@@ -140,7 +140,7 @@ infection.estimator(data=Data,
 abline(h=seq(0.1,0.6,by=0.1),lty="dotted",col="grey")
 ```
 
-Figure 1 seems to show a ratio of confirmed / estimated infections of about 0.4 at the present; however, the reader should keep in mind 
+Figure 1 seems to show a ratio of confirmed / estimated infections of a bit over 0.4 at the present; however, the reader should keep in mind 
 that in practice this value is estimated *separately* for each jurisdiction that is being analyzed, and as such might be *lower* in some
 states and *higher* in others, even for a constant IFR value or function.
 
