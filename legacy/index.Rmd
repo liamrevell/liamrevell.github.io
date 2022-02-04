@@ -1,0 +1,20 @@
+---
+title: "Legacy applications:"
+output: html_document
+---
+
+[&larr; back to to covid19-explorer.org](https://covid19-explorer.org/)
+
+Some of the applications in the R package [*covid19.Explorer*](https://github.com/liamrevell/covid19.Explorer/) and *shiny*-based website [covid19-explorer.org](https://covid19-explorer.org) are based on assumptions (for instance, a consistent relationship between SARS-CoV-2 infections and COVID-19 deaths) that are no longer valid due to the success of mass-vaccination programs in the U.S. and other countries.
+
+Some of these applications have been removed from this site. Others are left but no longer updated.
+
+### Contact & other information
+
+The R package [*covid19.Explorer*](https://github.com/liamrevell/covid19.Explorer/) and the website [covid19-explorer.org](https://covid19-explorer.org) were 
+developed by [Dr. Liam Revell](http://faculty.umb.edu/liam.revell/). Please [contact Liam](mailto:liam.revell@umb.edu) with questions about this page, 
+the [covid19-explorer.org website](https://covid19-explorer.org) or the R package.
+
+<br><br>
+[&larr; back to to covid19-explorer.org](http://covid19-explorer.org/)
+
